@@ -1,7 +1,15 @@
+/* eslint-disable no-unused-vars */
+import { motion } from "framer-motion";
+
 const About = () => {
   return (
     <section className="w-full bg-[#0d0d0d] text-white py-16 px-4">
-      <div className="max-w-5xl mx-auto text-center">
+      <motion.div
+        initial={{ opacity: 0, y: -40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="max-w-5xl mx-auto text-center"
+      >
         <h2 className="text-3xl md:text-4xl font-bold mb-4">About Us</h2>
         <p className="text-gray-400 text-base md:text-lg mb-10">
           Kami adalah tim kreatif yang berfokus pada pengembangan solusi digital
@@ -37,7 +45,7 @@ const About = () => {
             </ul>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

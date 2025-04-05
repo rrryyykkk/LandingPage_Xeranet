@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import NavLink from "./NavbarLink";
 
 // logo
@@ -47,7 +49,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav
+    <motion.nav
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? "bg-black/95 shadow-md" : "bg-transparent"
       } text-white`}
@@ -88,119 +93,90 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Sidebar Menu */}
-      <div
-        className={`fixed top-0 right-0 h-screen w-full max-w-sm bg-[#141414f9] flex flex-col items-center justify-between px-6 pt-24 pb-6 z-[998] transition-all duration-500 ease-in-out transform ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        {/* Logo in Menu */}
-        <img
-          src="/logo.png"
-          alt="Logo"
-          className="h-16 max-w-[200px] object-contain mb-10 transition-opacity duration-500"
-        />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.4 }}
+            className="fixed top-0 right-0 h-screen w-full max-w-sm bg-[#141414f9] flex flex-col items-center justify-between px-6 pt-24 pb-6 z-[998]"
+          >
+            <motion.img
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              src="/logo.png"
+              alt="Logo"
+              className="h-16 max-w-[200px] object-contain mb-10"
+            />
 
-        {/* Navigation Links */}
-        <div className="flex flex-col gap-4 items-center w-full text-lg transition-all duration-500 ease-in-out">
-          <NavLink
-            href="/"
-            isActive={activePage === "home"}
-            onClick={() => closeMenu("home")}
-            mobile
-            className={`transition-all duration-500 ease-in-out ${
-              isOpen
-                ? "opacity-100 translate-x-0 delay-100"
-                : "opacity-0 translate-x-5"
-            }`}
-          >
-            Home
-          </NavLink>
-          <NavLink
-            href="/"
-            isActive={activePage === "services"}
-            onClick={() => closeMenu("services")}
-            mobile
-            className={`transition-all duration-500 ease-in-out ${
-              isOpen
-                ? "opacity-100 translate-x-0 delay-200"
-                : "opacity-0 translate-x-5"
-            }`}
-          >
-            Services
-          </NavLink>
-          <NavLink
-            href="#blog"
-            isActive={activePage === "blog"}
-            onClick={() => closeMenu("blog")}
-            mobile
-            className={`transition-all duration-500 ease-in-out ${
-              isOpen
-                ? "opacity-100 translate-x-0 delay-300"
-                : "opacity-0 translate-x-5"
-            }`}
-          >
-            Blog
-          </NavLink>
+            <div className="flex flex-col gap-4 items-center w-full text-lg">
+              {["home", "services", "blog", "contact", "about"].map(
+                (page, i) => (
+                  <motion.div
+                    key={page}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * (i + 1) }}
+                    className="w-full text-center"
+                  >
+                    <NavLink
+                      href={
+                        page === "services"
+                          ? "/#services"
+                          : `/${page === "home" ? "" : page}`
+                      }
+                      isActive={activePage === page}
+                      onClick={() => closeMenu(page)}
+                      mobile
+                    >
+                      {page.charAt(0).toUpperCase() + page.slice(1)}
+                    </NavLink>
+                  </motion.div>
+                )
+              )}
+            </div>
 
-          <NavLink
-            href="/contact"
-            isActive={activePage === "Contact"}
-            onClick={() => closeMenu("Contact")}
-            mobile
-            className={`transition-all duration-500 ease-in-out ${
-              isOpen
-                ? "opacity-100 translate-x-0 delay-300"
-                : "opacity-0 translate-x-5"
-            }`}
-          >
-            Contact
-          </NavLink>
-          <NavLink
-            href="/About"
-            isActive={activePage === "About"}
-            onClick={() => closeMenu("About")}
-            mobile
-            className={`transition-all duration-500 ease-in-out ${
-              isOpen
-                ? "opacity-100 translate-x-0 delay-300"
-                : "opacity-0 translate-x-5"
-            }`}
-          >
-            About
-          </NavLink>
-        </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex justify-center gap-6 mt-10 text-white text-2xl"
+            >
+              <a href="#" aria-label="Facebook">
+                <FaFacebook />
+              </a>
+              <a href="#" aria-label="Twitter">
+                <FaXTwitter />
+              </a>
+              <a
+                href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
+                aria-label="Instagram"
+              >
+                <FaInstagramSquare />
+              </a>
+              <a href="#" aria-label="LinkedIn">
+                <FaLinkedin />
+              </a>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Social Icons */}
-        <div className="flex justify-center gap-6 mt-10 text-white text-2xl transition-opacity duration-500 ease-in-out">
-          <a href="#" aria-label="Facebook">
-            <FaFacebook />
-          </a>
-          <a href="#" aria-label="Twitter">
-            <FaXTwitter />
-          </a>
-          <a
-            href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
-            aria-label="Instagram"
-          >
-            <FaInstagramSquare />
-          </a>
-          <a href="#" aria-label="LinkedIn">
-            <FaLinkedin />
-          </a>
-        </div>
-      </div>
-
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[997] transition-opacity duration-300 ease-in-out ${
-          isOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setIsOpen(false)}
-      />
-    </nav>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[997]"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 

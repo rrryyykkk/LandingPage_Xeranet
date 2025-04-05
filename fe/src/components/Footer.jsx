@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   FaFacebook,
   FaInstagram,
@@ -6,9 +7,16 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 
+import { motion } from "framer-motion";
+
 export default function Footer() {
   return (
-    <footer className="bg-black text-white py-10">
+    <motion.footer
+      initial={{ opacity: 0, y: -40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.3 }}
+      className="bg-black text-white py-10"
+    >
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo dan Sosial Media */}
         <div>
@@ -121,6 +129,6 @@ export default function Footer() {
       <div className="mt-10 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
         &copy; {new Date().getFullYear()} Xeranet. All Rights Reserved.
       </div>
-    </footer>
+    </motion.footer>
   );
 }

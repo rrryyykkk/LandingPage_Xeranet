@@ -1,6 +1,4 @@
 import { useState } from "react";
-
-// logo
 import {
   FaFacebook,
   FaInstagram,
@@ -30,8 +28,9 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="w-full bg-black text-white py-20 px-4 ">
-      <div className="max-w-5xl mx-auto flex flex-col ">
+    <section id="contact" className="w-full bg-black text-white py-20 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Get in Touch</h2>
           <p className="text-gray-400 text-base md:text-lg">
@@ -40,11 +39,12 @@ const Contact = () => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-8 ">
+        {/* Content */}
+        <div className="grid md:grid-cols-2 gap-10 items-start">
           {/* Contact Form */}
           <form
             onSubmit={handleSubmit}
-            className="flex-1 bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a] transition-all duration-300 hover:shadow-2xl"
+            className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a] transition-all duration-300 hover:shadow-2xl"
           >
             <div className="mb-6">
               <label
@@ -105,59 +105,59 @@ const Contact = () => {
 
             <button
               type="submit"
-              className="w-120  bg-blue-600 hover:bg-blue-700 transition-colors duration-300 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl"
+              className="w-full bg-blue-600 hover:bg-blue-700 transition-colors duration-300 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl"
             >
               🚀 Send Message
             </button>
           </form>
 
           {/* Social Links */}
-          <div className="flex-1 bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a] h-fit w-fit">
+          <div className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border justify-center  flex border-[#2a2a2a]">
             <h3 className="text-xl font-semibold mb-4">Connect with Us</h3>
             <ul className="space-y-4 text-gray-300">
               <li>
                 <a
                   href="#"
-                  className="flex items-center gap-2 hover:text-blue-400 transition"
+                  aria-label="Facebook"
+                  className="flex items-center gap-3 hover:text-blue-400 transition"
                 >
-                  <span>
-                    <FaFacebook />
-                  </span>{" "}
-                  Facebook
+                  <FaFacebook /> Facebook
                 </a>
               </li>
               <li>
                 <a
                   href="#"
-                  className="flex items-center gap-2 hover:text-blue-400 transition"
+                  aria-label="Twitter"
+                  className="flex items-center gap-3 hover:text-blue-400 transition"
                 >
-                  <span>
-                    {" "}
-                    <FaTwitter />
-                  </span>{" "}
-                  Twitter
+                  <FaTwitter /> Twitter
                 </a>
               </li>
               <li>
                 <a
                   href="#"
-                  className="flex items-center gap-2 hover:text-pink-400 transition"
+                  aria-label="Instagram"
+                  className="flex items-center gap-3 hover:text-pink-500 transition"
                 >
-                  <span>
-                    <FaInstagram />
-                  </span>{" "}
-                  Instagram
+                  <FaInstagram /> Instagram
                 </a>
               </li>
               <li>
                 <a
                   href="#"
-                  className="flex items-center gap-2 hover:text-blue-500 transition"
+                  aria-label="LinkedIn"
+                  className="flex items-center gap-3 hover:text-blue-500 transition"
                 >
-                  <span>
-                    <FaLinkedin />
-                  </span>{" "}
-                  LinkedIn
+                  <FaLinkedin /> LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  aria-label="YouTube"
+                  className="flex items-center gap-3 hover:text-red-500 transition"
+                >
+                  <FaYoutube /> YouTube
                 </a>
               </li>
             </ul>

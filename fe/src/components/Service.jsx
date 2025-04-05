@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { FaTools, FaStar, FaShieldAlt, FaClock } from "react-icons/fa";
+import { motion } from "framer-motion";
 import web from "/1.png";
 import phone from "/2.png";
 import cyber from "/3.png";
@@ -61,17 +63,27 @@ const Services = () => {
   return (
     <section id="services" className="w-full bg-black text-white py-16 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-2">Our Services</h2>
           <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto">
             Premium digital solutions tailored for your business
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              viewport={{ once: true }}
               className="bg-[#121212] border border-[#222] rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               <div className="relative flex justify-center items-center h-40 overflow-hidden">
@@ -99,7 +111,7 @@ const Services = () => {
                   ))}
                 </ul>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
