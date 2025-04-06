@@ -20,7 +20,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo dan Sosial Media */}
         <div>
-          <img src="/logo.png" alt="Logo" className="w-32 mb-4" />
+          <img src="/logo_F/logo.png" alt="Logo" className="w-32 mb-4" />
           <div className="flex space-x-4 mt-4">
             <a href="#" className="text-gray-300 hover:text-white text-xl">
               <FaFacebook />

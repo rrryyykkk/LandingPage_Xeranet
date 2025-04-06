@@ -2,7 +2,7 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { posts } from "../../data/postData";
+import { posts } from "../../../data/postData";
 
 const BlogDetail = () => {
   const { id } = useParams();

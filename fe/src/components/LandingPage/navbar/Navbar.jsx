@@ -61,7 +61,7 @@ const Navbar = () => {
         {/* Logo */}
         <a href="/" className="flex items-center h-full">
           <img
-            src="/logo.png"
+            src="/logo_F/logo.png"
             alt="Logo"
             className={`h-10 max-w-[120px] object-contain transition-transform duration-300 ${
               isScrolled ? "scale-95" : "scale-100"
@@ -106,7 +106,7 @@ const Navbar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              src="/logo.png"
+              src="/logo_F/logo.png"
               alt="Logo"
               className="h-16 max-w-[200px] object-contain mb-10"
             />

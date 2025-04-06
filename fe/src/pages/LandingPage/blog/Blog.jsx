@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { posts } from "../../data/postData.js";
+import { posts } from "../../../data/postData.js";
 
 const Blog = () => {
   return (

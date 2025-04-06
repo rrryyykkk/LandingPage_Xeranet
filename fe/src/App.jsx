@@ -1,14 +1,22 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import Footer from "./components/Footer";
-import Hero from "./components/Hero";
-import Navbar from "./components/navbar/Navbar";
-import Service from "./components/Service";
-import Testimoni from "./components/Testimoni";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Blog from "./pages/blog/Blog";
+// landingPage
+import Hero from "./components/LandingPage/Hero";
+import Service from "./components/LandingPage/Service";
+import Testimoni from "./components/LandingPage/Testimoni";
+import About from "./pages/LandingPage/About";
+import Contact from "./pages/LandingPage/Contact";
+import Blog from "./pages/LandingPage/blog/Blog";
+// admin
+import BlogAdmin from "./pages/Admin/Blog.Admin";
+import UsersAdmin from "./pages/Admin/Users";
+import TestimonialsAdmin from "./pages/Admin/Testimonials";
+import HeroAdmin from "./pages/Admin/Hero";
+import DashboardAdmin from "./pages/Admin/Dashboard";
 import { useEffect } from "react";
-import BlogDetail from "./pages/blog/BlogDetail";
+import BlogDetail from "./pages/LandingPage/blog/BlogDetail";
+import LandingPageLayout from "./Layout/LandingPageLayout";
+import AdminLayout from "./Layout/AdminLayout";
+import { AdminThemeProvider } from "./context/ThemeContext";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -26,26 +34,73 @@ function ScrollToTop() {
 function App() {
   return (
     <>
-      <Navbar />
+      {/* landing Page-start */}
       <ScrollToTop />
       <Routes>
         <Route
           path="/"
           element={
             <>
-              <Hero />
-              <Service />
-              <Testimoni />
+              <LandingPageLayout>
+                <Hero />
+                <Service />
+                <Testimoni />
+              </LandingPageLayout>
             </>
           }
         />
 
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<BlogDetail />} />
+        <Route
+          path="/about"
+          element={
+            <LandingPageLayout>
+              <About />
+            </LandingPageLayout>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <LandingPageLayout>
+              <Contact />
+            </LandingPageLayout>
+          }
+        />
+        <Route
+          path="/blog"
+          element={
+            <LandingPageLayout>
+              <Blog />
+            </LandingPageLayout>
+          }
+        />
+        <Route
+          path="/blog/:id"
+          element={
+            <LandingPageLayout>
+              <BlogDetail />
+            </LandingPageLayout>
+          }
+        />
+        {/* landing Page-end */}
+
+        {/* Admin-start */}
+        <Route
+          path="/admin"
+          element={
+            <AdminThemeProvider>
+              <AdminLayout />
+            </AdminThemeProvider>
+          }
+        >
+          <Route index element={<DashboardAdmin />}></Route>
+          <Route path="blog" element={<BlogAdmin />}></Route>
+          <Route path="users" element={<UsersAdmin />}></Route>
+          <Route path="testimonials" element={<TestimonialsAdmin />}></Route>
+          <Route path="hero" element={<HeroAdmin />}></Route>
+        </Route>
+        {/* Admin-end */}
       </Routes>
-      <Footer />
     </>
   );
 }
