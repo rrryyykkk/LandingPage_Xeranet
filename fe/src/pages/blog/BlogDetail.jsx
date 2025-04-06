@@ -1,14 +1,18 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { posts } from "./Blog"; // sesuaikan path relatif kalau file berbeda folder
+import { motion } from "framer-motion";
+import { posts } from "../../data/postData";
 
 const BlogDetail = () => {
   const { id } = useParams();
   const post = posts.find((p) => p.id === Number(id));
+  console.log("post:", post);
 
   if (!post) {
     return (
       <div className="text-center text-white py-20 bg-black min-h-screen">
+        <p className="text-4xl mb-4">😕</p>
         <p className="text-xl font-semibold">Artikel tidak ditemukan.</p>
         <Link to="/blog" className="text-blue-400 underline mt-4 inline-block">
           ← Kembali ke Blog
@@ -18,7 +22,12 @@ const BlogDetail = () => {
   }
 
   return (
-    <div className="bg-[#0f0f0f] text-white min-h-screen px-6 py-16">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-[#0f0f0f] text-white min-h-screen px-6 py-16"
+    >
       <div className="max-w-3xl mx-auto">
         <img
           src={post.image}
@@ -37,7 +46,7 @@ const BlogDetail = () => {
           ← Kembali ke Blog
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

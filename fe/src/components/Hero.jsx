@@ -15,8 +15,7 @@ const Hero = () => {
         >
           <source src="/BG.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-black bg-opacity-60" />
-      </div>
+        </div>
 
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">

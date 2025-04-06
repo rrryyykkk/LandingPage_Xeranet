@@ -112,9 +112,9 @@ const Contact = () => {
           </form>
 
           {/* Social Links */}
-          <div className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border justify-center  flex border-[#2a2a2a]">
-            <h3 className="text-xl font-semibold mb-4">Connect with Us</h3>
-            <ul className="space-y-4 text-gray-300">
+          <div className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a]">
+            <h3 className="text-2xl font-bold mb-4">Connect with Us</h3>
+            <ul className="space-y-4 text-gray-300 ">
               <li>
                 <a
                   href="#"
@@ -135,7 +135,7 @@ const Contact = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
                   aria-label="Instagram"
                   className="flex items-center gap-3 hover:text-pink-500 transition"
                 >
