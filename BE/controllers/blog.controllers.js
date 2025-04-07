@@ -1,68 +1,76 @@
 import blogModels from "../models/blog.models.js";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import Notification from "../models/notification.models.js";
+import {
+  uploadToCloudinary,
+  isValidImageUrl,
+  downloadAndUpload,
+} from "../utils/uploadToCloudinary.js";
 
+// ✅ GET All Blogs with Pagination & Search
 export const getAllBlogs = async (req, res) => {
   try {
     let { page = 1, limit = 10, search } = req.query;
-
-    // konversi page dan limit ke integer
     page = parseInt(page);
     limit = parseInt(limit);
 
-    const filters = {};
-    if (search) filters.title = { $regex: search, $options: "i" };
-
-    // hitung total blog yg ada
-    const totalBlogs = await blogModels.countDocuments(filters);
+    const filters = search ? { title: { $regex: search, $options: "i" } } : {};
+    const total = await blogModels.countDocuments(filters);
 
     const blogs = await blogModels
       .find(filters)
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+      .limit(limit);
 
     res.status(200).json({
       blogs,
       currentPage: page,
-      totalPage: Math.ceil(totalBlogs / limit),
+      totalPage: Math.ceil(total / limit),
+      totalData: total,
     });
-  } catch (error) {
-    console.log("Error getAllBlogs", error);
+  } catch (err) {
+    console.error("Error getAllBlogs:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// ✅ GET Single Blog by ID
 export const getBlogById = async (req, res) => {
   try {
-    const { id: blogId } = req.params;
+    const blog = await blogModels.findById(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
 
-    const blog = await blogModels.findById(blogId);
-
-    if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
-    }
-    res.status(200).json({ blog, success: true });
-  } catch (error) {
-    res.status(500).json({
-      message: "Internal server error",
-      success: false,
-      error: error.message,
+    // Tambah notifikasi info ketika blog dilihat (opsional)
+    await Notification.create({
+      from: req.body.user || "visitor",
+      to: "admin",
+      type: "info",
+      message: `Blog "${blog.title}" telah dilihat.`,
     });
+
+    res.status(200).json({ blog });
+  } catch (err) {
+    console.error("Error getBlogById:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// ✅ CREATE Blog
 export const createBlog = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
+    const { title, content, author, blogImage: blogImageUrl } = req.body;
+    let blogImage = "";
 
-    let blogImage = null;
-
-    if (req.file?.blogImage) {
-      blogImage = await uploadToCloudinary(
-        req.file.blogImage[0].buffer,
-        "blog",
-        req.file.blogImage[0].mimetype
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "blog"
       );
+      blogImage = result.url;
+    } else if (blogImageUrl && isValidImageUrl(blogImageUrl)) {
+      const result = await downloadAndUpload(blogImageUrl, "blog");
+      blogImage = result.url;
     }
 
     const newBlog = await blogModels.create({
@@ -72,79 +80,83 @@ export const createBlog = async (req, res) => {
       blogImage,
     });
 
-    await newBlog.save();
+    await Notification.create({
+      from: author || "admin",
+      to: "admin",
+      type: "create",
+      message: `Blog "${title}" telah dibuat oleh ${author || "admin"}.`,
+    });
 
-    res.status(200).json({ message: "Blog created", new: newBlog });
-  } catch (error) {
-    console.log("Error cretaBlog", error);
+    res.status(201).json({ message: "Blog created", blog: newBlog });
+  } catch (err) {
+    console.error("Error createBlog:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// ✅ UPDATE Blog
 export const updateBlog = async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content, author, blogImage: blogImageUrl } = req.body;
+    let updateData = {};
+    if (title) updateData.title = title;
+    if (content) updateData.content = content;
 
-    // validasi data
-    let updateFields = {};
-
-    // cek ad field yg diisi, dan masukan ke updateFields
-    if (title) updateFields.title = title;
-    if (content) updateFields.content = content;
-
-    // edit image
-    if (req.file?.blogImage) {
-      updateFields.blogImage = await uploadToCloudinary(
-        req.file.blogImage[0].buffer,
-        "blog",
-        req.file.blogImage[0].mimetype
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "blog"
       );
-    }
-
-    if (Object.keys(updateFields).length === 0) {
-      {
-        return res
-          .status(400)
-          .json({ message: "No data to update", success: false });
-      }
+      updateData.blogImage = result.url;
+    } else if (blogImageUrl && isValidImageUrl(blogImageUrl)) {
+      const result = await downloadAndUpload(blogImageUrl, "blog");
+      updateData.blogImage = result.url;
     }
 
     const updatedBlog = await blogModels.findByIdAndUpdate(
       req.params.id,
-      updateFields,
+      updateData,
       { new: true }
     );
 
-    if (!updatedBlog) {
-      return res
-        .status(404)
-        .json({ message: "Blog not found", success: false });
-    }
+    if (!updatedBlog)
+      return res.status(404).json({ message: "Blog not found" });
 
-    res
-      .status(200)
-      .json({ message: "Blog updated", success: true, blog: updatedBlog });
-  } catch (error) {
-    console.log("Error updateBlog", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-      success: false,
+    await Notification.create({
+      from: author || "admin",
+      to: "admin",
+      type: "update",
+      message: `Blog "${updatedBlog.title}" telah diperbarui oleh ${
+        author || "admin"
+      }.`,
     });
+
+    res.status(200).json({ message: "Blog updated", blog: updatedBlog });
+  } catch (err) {
+    console.error("Error updateBlog:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// ✅ DELETE Blog
 export const deleteBlog = async (req, res) => {
   try {
-    const deleteBlog = await blogModels.findByIdAndDelete(req.params.id);
-    if (!deleteBlog) {
-      return res
-        .status(404)
-        .json({ message: "Blog not found", success: false });
-    }
+    const blog = await blogModels.findByIdAndDelete(req.params.id);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+    await Notification.create({
+      from: req.body.author || "admin",
+      to: "admin",
+      type: "delete",
+      message: `Blog "${blog.title}" telah dihapus oleh ${
+        req.body.author || "admin"
+      }.`,
+    });
+
     res.status(200).json({ message: "Blog deleted", success: true });
-  } catch (error) {
-    console.log("Error deleteBlog", error);
+  } catch (err) {
+    console.error("Error deleteBlog:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };

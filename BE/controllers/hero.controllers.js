@@ -1,47 +1,19 @@
 import heroModels from "../models/hero.models.js";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import Notification from "../models/notification.models.js";
+import {
+  uploadToCloudinary,
+  isValidImageUrl,
+  downloadAndUpload,
+} from "../utils/uploadToCloudinary.js";
 
+// ✅ GET All Heroes
 export const getHero = async (req, res) => {
   try {
-    const hero = await heroModels.find({}).sort({ createdAt: -1 });
-    if (!hero) {
-      return res.status(404).json({ message: "Hero not found" });
-    }
-    res.status(200).json({ hero, success: true });
+    const heroes = await heroModels.find().sort({ createdAt: -1 });
+
+    res.status(200).json({ heroes, success: true });
   } catch (error) {
-    res.status(500).json(console.log("Error getHero", error), {
-      message: "Internal server error",
-      success: false,
-      error: error.message,
-    });
-  }
-};
-
-export const createHero = async (req, res) => {
-  try {
-    const { title } = req.body;
-
-    let heroImage = null;
-
-    if (req.file?.heroImage) {
-      heroImage = await uploadToCloudinary(
-        req.file.heroImage[0].buffer,
-        "hero",
-        req.file.heroImage[0].mimetype
-      );
-    }
-
-    const newHero = await heroModels.create({
-      title,
-      heroImage,
-    });
-
-    await newHero.save();
-    res
-      .status(200)
-      .json({ message: "Hero created", hero: newHero, success: true });
-  } catch (error) {
-    console.log("Error createHero", error);
+    console.error("Error getHero", error);
     res.status(500).json({
       message: "Internal server error",
       success: false,
@@ -50,23 +22,67 @@ export const createHero = async (req, res) => {
   }
 };
 
-export const updateHero = async (req, res) => {
+// ✅ CREATE Hero
+export const createHero = async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, heroImage: heroImageUrl, createdBy } = req.body;
+    let heroImage = "";
 
-    let updateFields = {};
-
-    if (title) updateFields.title = title;
-
-    if (req.file?.heroImage) {
-      updateFields.heroImage = await uploadToCloudinary(
-        req.file.heroImage[0].buffer,
-        "hero",
-        req.file.heroImage[0].mimetype
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "hero"
       );
+      heroImage = result.url;
+    } else if (heroImageUrl && isValidImageUrl(heroImageUrl)) {
+      const result = await downloadAndUpload(heroImageUrl, "hero");
+      heroImage = result.url;
     }
 
-    if (Object.keys(updateFields).length === 0) {
+    const newHero = await heroModels.create({ title, heroImage });
+
+    await Notification.create({
+      from: createdBy || "admin",
+      to: "admin",
+      type: "create",
+      message: `Hero "${title}" telah dibuat oleh ${createdBy || "admin"}.`,
+    });
+
+    res
+      .status(201)
+      .json({ message: "Hero created", hero: newHero, success: true });
+  } catch (error) {
+    console.error("Error createHero", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// ✅ UPDATE Hero
+export const updateHero = async (req, res) => {
+  try {
+    const { title, heroImage: heroImageUrl, updatedBy } = req.body;
+
+    let updateData = {};
+    if (title) updateData.title = title;
+
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "hero"
+      );
+      updateData.heroImage = result.url;
+    } else if (heroImageUrl && isValidImageUrl(heroImageUrl)) {
+      const result = await downloadAndUpload(heroImageUrl, "hero");
+      updateData.heroImage = result.url;
+    }
+
+    if (Object.keys(updateData).length === 0) {
       return res
         .status(400)
         .json({ message: "No data to update", success: false });
@@ -74,8 +90,10 @@ export const updateHero = async (req, res) => {
 
     const updatedHero = await heroModels.findByIdAndUpdate(
       req.params.id,
-      updateFields,
-      { new: true }
+      updateData,
+      {
+        new: true,
+      }
     );
 
     if (!updatedHero) {
@@ -84,11 +102,20 @@ export const updateHero = async (req, res) => {
         .json({ message: "Hero not found", success: false });
     }
 
+    await Notification.create({
+      from: updatedBy || "admin",
+      to: "admin",
+      type: "update",
+      message: `Hero "${updatedHero.title}" telah diperbarui oleh ${
+        updatedBy || "admin"
+      }.`,
+    });
+
     res
       .status(200)
       .json({ message: "Hero updated", hero: updatedHero, success: true });
   } catch (error) {
-    console.log("Error updateHero", error);
+    console.error("Error updateHero", error);
     res.status(500).json({
       message: "Internal server error",
       success: false,
@@ -97,17 +124,28 @@ export const updateHero = async (req, res) => {
   }
 };
 
+// ✅ DELETE Hero
 export const deleteHero = async (req, res) => {
   try {
-    const deleteHero = await heroModels.findByIdAndDelete(req.params.id);
-    if (!deleteHero) {
+    const deletedHero = await heroModels.findByIdAndDelete(req.params.id);
+    if (!deletedHero) {
       return res
         .status(404)
         .json({ message: "Hero not found", success: false });
     }
+
+    await Notification.create({
+      from: req.body.deletedBy || "admin",
+      to: "admin",
+      type: "delete",
+      message: `Hero "${deletedHero.title}" telah dihapus oleh ${
+        req.body.deletedBy || "admin"
+      }.`,
+    });
+
     res.status(200).json({ message: "Hero deleted", success: true });
   } catch (error) {
-    console.log("Error deleteHero", error);
+    console.error("Error deleteHero", error);
     res.status(500).json({
       message: "Internal server error",
       success: false,
