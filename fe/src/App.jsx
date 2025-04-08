@@ -17,6 +17,7 @@ import BlogDetail from "./pages/LandingPage/blog/BlogDetail";
 import LandingPageLayout from "./Layout/LandingPageLayout";
 import AdminLayout from "./Layout/AdminLayout";
 import { AdminThemeProvider } from "./context/ThemeContext";
+import LogoPartner from "./components/LandingPage/LogoPartner";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function App() {
               <LandingPageLayout>
                 <Hero />
                 <Service />
+                <LogoPartner />
                 <Testimoni />
               </LandingPageLayout>
             </>
