@@ -73,7 +73,7 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-500 hover:text-red-500 text-lg"
+              className="text-gray-500 cursor-pointer hover:text-red-500 text-lg"
             >
               <FaRegTimesCircle />
             </button>

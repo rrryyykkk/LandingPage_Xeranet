@@ -82,7 +82,7 @@ export const dummyTestimonials = [
   }
 ];
 
-export const dummyHeroSettings = {
+export const dummyHeroList = {
   title: 'Selamat Datang di Admin Dashboard',
   subtitle: 'Kelola konten website Anda dengan mudah',
   background: 'https://source.unsplash.com/random/1920x1080/?nature'

@@ -3,7 +3,6 @@ import {
   dummyUsers,
   dummyBlogs,
   dummyTestimonials,
-  dummyHeroSettings,
 } from "../data/dummyData.js";
 
 const API_URL = "http://localhost:8000/api";
@@ -151,13 +150,42 @@ export const deleteTestimonial = async (id) => {
 };
 
 // Hero settings endpoints
-export const getHeroSettings = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return dummyHeroSettings;
+let dummyHeroList = [
+  {
+    _id: "1",
+    title: "Selamat Datang di Admin Dashboard",
+    subtitle: "Kelola konten website Anda dengan mudah",
+    background: "https://source.unsplash.com/random/1920x1080/?nature",
+  },
+];
+
+export const getHeroes = async () => {
+  return dummyHeroList;
 };
 
-export const updateHeroSettings = async (settingsData) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  Object.assign(dummyHeroSettings, settingsData);
-  return dummyHeroSettings;
+export const createHero = async (formData) => {
+  const newHero = {
+    _id: Date.now().toString(),
+    ...formData,
+  };
+  dummyHeroList.push(newHero);
+  return newHero;
+};
+
+export const updateHero = async (id, formData) => {
+  const index = dummyHeroList.findIndex((h) => h._id === id);
+  if (index !== -1) {
+    dummyHeroList[index] = { _id: id, ...formData };
+    return dummyHeroList[index];
+  }
+  throw new Error("Hero not found (dummy)");
+};
+
+export const deleteHero = async (id) => {
+  const index = dummyHeroList.findIndex((h) => h._id === id);
+  if (index !== -1) {
+    const deleted = dummyHeroList.splice(index, 1);
+    return deleted[0];
+  }
+  throw new Error("Hero not found (dummy)");
 };
