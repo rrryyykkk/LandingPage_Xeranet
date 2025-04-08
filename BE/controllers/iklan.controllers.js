@@ -6,6 +6,9 @@ import {
   downloadAndUpload,
 } from "../utils/uploadToCloudinary.js";
 
+// helper untuk konversi boolean ke string
+const parseBoolean = (val) => val === true || val === "true";
+
 // GET All Iklan
 export const getIklan = async (req, res) => {
   try {
@@ -20,9 +23,15 @@ export const getIklan = async (req, res) => {
 // CREATE Iklan
 export const createIklan = async (req, res) => {
   try {
-    const { title, iklanImage: iklanImageUrl, createdBy } = req.body;
-    let iklanImage = "";
+    const {
+      title,
+      iklanImage: iklanImageUrl,
+      link,
+      isActive,
+      createdBy,
+    } = req.body;
 
+    let iklanImage = "";
     if (req.file) {
       const result = await uploadToCloudinary(
         req.file.buffer,
@@ -35,7 +44,17 @@ export const createIklan = async (req, res) => {
       iklanImage = result.url;
     }
 
-    const newIklan = await iklanModels.create({ title, iklanImage });
+    const activeFlag = parseBoolean(isActive);
+    if (activeFlag) {
+      await iklanModels.updateMany({ isActive: true }, { isActive: false });
+    }
+
+    const newIklan = await iklanModels.create({
+      title,
+      iklanImage,
+      link,
+      isActive: activeFlag,
+    });
 
     await Notification.create({
       from: createdBy || "admin",
@@ -49,22 +68,29 @@ export const createIklan = async (req, res) => {
       .json({ message: "Iklan created", iklan: newIklan, success: true });
   } catch (error) {
     console.error("Error createIklan", error);
-    res
-      .status(500)
-      .json({
-        message: "Internal server error",
-        success: false,
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
 
 // UPDATE Iklan
 export const updateIklan = async (req, res) => {
   try {
-    const { title, iklanImage: iklanImageUrl, updatedBy } = req.body;
+    const {
+      title,
+      iklanImage: iklanImageUrl,
+      updatedBy,
+      link,
+      isActive,
+    } = req.body;
+    const { id } = req.params;
+
     let updateFields = {};
     if (title) updateFields.title = title;
+    if (link !== undefined) updateFields.link = link;
 
     if (req.file) {
       const result = await uploadToCloudinary(
@@ -84,13 +110,17 @@ export const updateIklan = async (req, res) => {
         .json({ message: "No data to update", success: false });
     }
 
-    const updatedIklan = await iklanModels.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      {
-        new: true,
-      }
-    );
+    // handle perbarui isActive
+    if (parseBoolean(isActive)) {
+      await iklanModels.updateMany({ isActive: true }, { isActive: false });
+      updateFields.isActive = true;
+    } else if (isActive === "false" || isActive === false) {
+      updateFields.isActive = false;
+    }
+
+    const updatedIklan = await iklanModels.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
 
     if (!updatedIklan) {
       return res
@@ -112,13 +142,11 @@ export const updateIklan = async (req, res) => {
       .json({ message: "Iklan updated", iklan: updatedIklan, success: true });
   } catch (error) {
     console.error("Error updateIklan", error);
-    res
-      .status(500)
-      .json({
-        message: "Internal server error",
-        success: false,
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
 
@@ -144,12 +172,10 @@ export const deleteIklan = async (req, res) => {
     res.status(200).json({ message: "Iklan deleted", success: true });
   } catch (error) {
     console.error("Error deleteIklan", error);
-    res
-      .status(500)
-      .json({
-        message: "Internal server error",
-        success: false,
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };

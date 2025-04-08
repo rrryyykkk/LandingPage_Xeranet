@@ -6,6 +6,9 @@ import {
   downloadAndUpload,
 } from "../utils/uploadToCloudinary.js";
 
+// helper untuk parse boolean ke string
+const parseBoolean = (val) => val === true || val === "true";
+
 // ✅ GET All Heroes
 export const getHero = async (req, res) => {
   try {
@@ -25,7 +28,7 @@ export const getHero = async (req, res) => {
 // ✅ CREATE Hero
 export const createHero = async (req, res) => {
   try {
-    const { title, heroImage: heroImageUrl, createdBy } = req.body;
+    const { title, heroImage: heroImageUrl, createdBy, isActive } = req.body;
     let heroImage = "";
 
     if (req.file) {
@@ -40,7 +43,12 @@ export const createHero = async (req, res) => {
       heroImage = result.url;
     }
 
-    const newHero = await heroModels.create({ title, heroImage });
+    const activeFlag = parseBoolean(isActive);
+    if (activeFlag) {
+      await heroModels.updateMany({ isActive: true }, { isActive: false });
+    }
+
+    const newHero = await heroModels.create({ title, heroImage, isActive });
 
     await Notification.create({
       from: createdBy || "admin",
@@ -65,8 +73,8 @@ export const createHero = async (req, res) => {
 // ✅ UPDATE Hero
 export const updateHero = async (req, res) => {
   try {
-    const { title, heroImage: heroImageUrl, updatedBy } = req.body;
-
+    const { title, heroImage: heroImageUrl, updatedBy, isActive } = req.body;
+    const { id } = req.params;
     let updateData = {};
     if (title) updateData.title = title;
 
@@ -82,19 +90,23 @@ export const updateHero = async (req, res) => {
       updateData.heroImage = result.url;
     }
 
+    // update isActive
+    const activeFlag = parseBoolean(isActive);
+    if (activeFlag) {
+      await heroModels.updateMany({ isActive: true }, { isActive: false });
+    } else {
+      updateData.isActive = false;
+    }
+
     if (Object.keys(updateData).length === 0) {
       return res
         .status(400)
         .json({ message: "No data to update", success: false });
     }
 
-    const updatedHero = await heroModels.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-      }
-    );
+    const updatedHero = await heroModels.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
 
     if (!updatedHero) {
       return res
