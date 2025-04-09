@@ -25,7 +25,7 @@ const Header = ({ onSidebarToggle }) => {
       transition={{ duration: 0.5 }}
       className="sticky top-0 z-50 bg-base-100 border-b border-base-300"
     >
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
         {/* Sidebar + Brand */}
         <div className="flex items-center gap-4">
           <button
@@ -34,13 +34,13 @@ const Header = ({ onSidebarToggle }) => {
           >
             <FaBars />
           </button>
-          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-primary">
+          <h1 className="text-lg sm:text-2xl font-semibold tracking-tight text-primary">
             Admin <span className="text-base-content">Xeranet</span>
           </h1>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-2 sm:gap-4 relative">
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
@@ -70,7 +70,7 @@ const Header = ({ onSidebarToggle }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-lg rounded-xl w-72 z-50"
+                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-lg rounded-xl w-screen max-w-sm z-50"
                 >
                   <div className="p-4 border-b border-base-300 font-semibold">
                     Notifications
@@ -146,14 +146,14 @@ const Header = ({ onSidebarToggle }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-md rounded-lg w-44 py-2 z-50"
+                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-md rounded-lg min-w-[10rem] w-screen max-w-xs py-2 z-50"
                 >
                   <li>
-                    <a className="block px-4 py-2 hover:bg-base-200">Profile</a>
-                  </li>
-                  <li>
-                    <a className="block px-4 py-2 hover:bg-base-200">
-                      Settings
+                    <a
+                      href="/admin/profile"
+                      className="block px-4 py-2 hover:bg-base-200 cursor-pointer"
+                    >
+                      Profile
                     </a>
                   </li>
                   <li>

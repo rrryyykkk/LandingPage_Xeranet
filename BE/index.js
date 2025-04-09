@@ -9,6 +9,7 @@ import iklanRoutes from "./routes/iklan.routes.js";
 import logoPTRoutes from "./routes/logoPT.routes.js";
 import testimoniRoutes from "./routes/testimoni.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/iklan", iklanRoutes);
 app.use("/api/logoPt", logoPTRoutes);
 app.use("/api/testimoni", testimoniRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/user", userRoutes);
 
 // listen
 app.listen(PORT, () => {

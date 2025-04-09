@@ -7,6 +7,7 @@ import {
   MdGroups,
   MdStars,
   MdImage,
+  MdBadge,
 } from "react-icons/md";
 
 const menuItems = [
@@ -19,17 +20,25 @@ const menuItems = [
     path: "/admin/testimonials",
   },
   { text: "Hero Background", icon: <MdImage size={20} />, path: "/admin/hero" },
+  {
+    text: "Logo Partner",
+    icon: <MdBadge size={20} />,
+    path: "/admin/logo-partner",
+  },
 ];
 
 const Sidebar = ({ open }) => {
   return (
     <motion.aside
-      animate={{ width: open ? 240 : 64 }}
+      animate={{
+        x: open ? 0 : -250,
+        width: open ? 240 : 0,
+      }}
       transition={{ duration: 0.3 }}
-      className="h-screen bg-base-200 shadow-md overflow-hidden sticky top-0 z-30"
+      className={`fixed md:relative top-0 left-0 h-full z-40 bg-base-200 shadow-md overflow-hidden md:w-[240px]`}
     >
       <div className="p-4 border-b border-base-300 font-bold text-lg text-primary">
-        {open ? "Admin Panel" : "A"}
+        {open ? "Admin Panel" : ""}
       </div>
       <ul className="menu p-2 space-y-1">
         {menuItems.map((item) => (
@@ -45,11 +54,7 @@ const Sidebar = ({ open }) => {
               }
             >
               <span className="text-xl">{item.icon}</span>
-              {open && (
-                <span className="whitespace-nowrap overflow-hidden transition-all duration-200">
-                  {item.text}
-                </span>
-              )}
+              {open && <span className="whitespace-nowrap">{item.text}</span>}
             </NavLink>
           </li>
         ))}

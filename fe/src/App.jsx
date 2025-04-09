@@ -19,6 +19,9 @@ import AdminLayout from "./Layout/AdminLayout";
 import { AdminThemeProvider } from "./context/ThemeContext";
 import LogoPartner from "./components/LandingPage/LogoPartner";
 import IklanPopUp from "./components/LandingPage/IklanPopUp";
+import LogoPt from "./pages/Admin/LogoPt";
+import LoginPage from "./pages/Auth/Login";
+import ProfilePage from "./pages/Admin/Profile";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -102,8 +105,11 @@ function App() {
           <Route path="users" element={<UsersAdmin />}></Route>
           <Route path="testimonials" element={<TestimonialsAdmin />}></Route>
           <Route path="hero" element={<HeroAdmin />}></Route>
+          <Route path="logo-partner" element={<LogoPt />}></Route>
+          <Route path="profile" element={<ProfilePage />}></Route>
         </Route>
         {/* Admin-end */}
+        <Route path="/login" element={<LoginPage/>}/>
       </Routes>
     </>
   );

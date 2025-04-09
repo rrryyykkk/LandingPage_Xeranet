@@ -45,6 +45,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       fullName,
       role: isValidRole,
+      imgProfile: null,
     });
 
     await newUser.save();

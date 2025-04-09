@@ -189,3 +189,58 @@ export const deleteHero = async (id) => {
   }
   throw new Error("Hero not found (dummy)");
 };
+
+// Dummy data LogoPT
+let dummyLogoPT = [
+  {
+    _id: "1",
+    name: "Logo Perusahaan A",
+    logoUrl: "https://via.placeholder.com/150",
+    isActive: true,
+  },
+  {
+    _id: "2",
+    name: "Logo Perusahaan B",
+    logoUrl: "https://via.placeholder.com/150",
+    isActive: false,
+  },
+];
+
+// Get all LogoPT
+export const getLogoPTs = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  return { logos: dummyLogoPT };
+};
+
+// Create LogoPT
+export const createLogoPT = async (formData) => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const newLogo = {
+    _id: Date.now().toString(),
+    ...formData,
+  };
+  dummyLogoPT.push(newLogo);
+  return newLogo;
+};
+
+// Update LogoPT
+export const updateLogoPT = async (id, formData) => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const index = dummyLogoPT.findIndex((l) => l._id === id);
+  if (index !== -1) {
+    dummyLogoPT[index] = { _id: id, ...formData };
+    return dummyLogoPT[index];
+  }
+  throw new Error("LogoPT not found (dummy)");
+};
+
+// Delete LogoPT
+export const deleteLogoPT = async (id) => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const index = dummyLogoPT.findIndex((l) => l._id === id);
+  if (index !== -1) {
+    const deleted = dummyLogoPT.splice(index, 1);
+    return deleted[0];
+  }
+  throw new Error("LogoPT not found (dummy)");
+};

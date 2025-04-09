@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBlogPosts, getUsers, getTestimonials } from "../../services/api";
+import {
+  getBlogPosts,
+  getUsers,
+  getTestimonials,
+  getHeroes,
+  getLogoPTs,
+} from "../../services/api";
 import Loading from "../../components/Admin/common/loading";
 import Error from "../../components/Admin/common/error";
 
@@ -22,8 +28,31 @@ const Dashboard = () => {
     error: testimonialsError,
   } = useQuery({ queryKey: ["testimonials"], queryFn: getTestimonials });
 
-  const isLoading = blogsLoading || usersLoading || testimonialsLoading;
-  const error = blogsError || usersError || testimonialsError;
+  const {
+    data: heroes,
+    isLoading: heroesLoading,
+    error: heroesError,
+  } = useQuery({ queryKey: ["heroes"], queryFn: getHeroes });
+
+  const {
+    data: logoPTs,
+    isLoading: logoPTsLoading,
+    error: logoPTsError,
+  } = useQuery({ queryKey: ["logoPT"], queryFn: getLogoPTs });
+
+  const isLoading =
+    blogsLoading ||
+    usersLoading ||
+    testimonialsLoading ||
+    heroesLoading ||
+    logoPTsLoading;
+
+  const error =
+    blogsError ||
+    usersError ||
+    testimonialsError ||
+    heroesError ||
+    logoPTsError;
 
   if (isLoading) {
     return <Loading message="Memuat data dashboard..." />;
@@ -70,6 +99,24 @@ const Dashboard = () => {
             </h2>
             <p className="text-3xl font-bold text-primary">
               {testimonials?.length || 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="card bg-base-100 border border-base-300 shadow-md">
+          <div className="card-body">
+            <h2 className="card-title text-base-content/80">Total Heroes</h2>
+            <p className="text-3xl font-bold text-primary">
+              {heroes?.length || 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="card bg-base-100 border border-base-300 shadow-md">
+          <div className="card-body">
+            <h2 className="card-title text-base-content/80">Total Logo PT</h2>
+            <p className="text-3xl font-bold text-primary">
+              {logoPTs?.length || 0}
             </p>
           </div>
         </div>

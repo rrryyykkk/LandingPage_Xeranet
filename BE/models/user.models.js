@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema(
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       trim: true,
     },
+    imgProfile: {
+      type: String,
+    },
     password: {
       type: String,
       required: true,
