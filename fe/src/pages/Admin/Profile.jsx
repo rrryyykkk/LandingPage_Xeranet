@@ -1,9 +1,35 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import EditProfileForm from "../../components/Admin/common/EditProfileForm";
 
-const ProfilePage = ({ user }) => {
+const ProfilePage = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+
   const navigate = useNavigate();
+
+  // Data user sementara (dummy)
+  const user = {
+    fullName: "John Doe",
+    username: "johndoe",
+    email: "oYt2q@example.com",
+    imgProfile: "/avatar.png",
+  };
+
+  // Redirect ke login jika user tidak ada
+  useEffect(() => {
+    if (!user) {
+      navigate("/admin/login");
+    }
+  }, [user, navigate]);
+
+  const handleEdit = () => {
+    setSelectedProfile(user); // Set profile yang ingin diedit
+    setIsOpen(true); // Buka form edit
+  };
 
   return (
     <motion.div
@@ -29,20 +55,26 @@ const ProfilePage = ({ user }) => {
 
           <div className="text-center sm:text-left">
             <h2 className="text-2xl font-semibold">{user.fullName}</h2>
-            <p className="text-sm text-gray-500">@{user.userName}</p>
+            <p className="text-sm text-gray-500">@{user.username}</p>
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
         </div>
 
         <div className="flex justify-end">
-          <button
-            onClick={() => navigate("/admin/profile/edit")}
-            className="btn btn-primary"
-          >
+          <button className="btn btn-primary" onClick={handleEdit}>
             Edit Profil
           </button>
         </div>
       </div>
+
+      {/* Tampilkan form jika isOpen true */}
+      {isOpen && (
+        <EditProfileForm
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          profile={selectedProfile}
+        />
+      )}
     </motion.div>
   );
 };

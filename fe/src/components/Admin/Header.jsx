@@ -12,11 +12,18 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useAdminTheme } from "../../context/ThemeContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = ({ onSidebarToggle }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { theme, toggleTheme } = useAdminTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Implementasi logout (hapus token, dsb)
+    navigate("/admin/login");
+  };
 
   return (
     <motion.header
@@ -34,7 +41,7 @@ const Header = ({ onSidebarToggle }) => {
           >
             <FaBars />
           </button>
-          <h1 className="text-lg sm:text-2xl font-semibold tracking-tight text-primary">
+          <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-primary">
             Admin <span className="text-base-content">Xeranet</span>
           </h1>
         </div>
@@ -44,13 +51,13 @@ const Header = ({ onSidebarToggle }) => {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="btn btn-circle btn-ghost text-xl transition-all"
+            className="btn btn-circle btn-ghost text-xl"
             title={theme === "light" ? "Dark Mode" : "Light Mode"}
           >
             {theme === "light" ? <FaMoon /> : <FaSun />}
           </button>
 
-          {/* Notification */}
+          {/* Notifications */}
           <div className="relative">
             <button
               onClick={() => {
@@ -66,53 +73,51 @@ const Header = ({ onSidebarToggle }) => {
             <AnimatePresence>
               {showNotifications && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-lg rounded-xl w-screen max-w-sm z-50"
+                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-xl rounded-xl w-screen max-w-sm z-50"
                 >
                   <div className="p-4 border-b border-base-300 font-semibold">
                     Notifications
                   </div>
                   <ul className="divide-y divide-base-200 max-h-60 overflow-y-auto">
-                    <li className="px-4 py-3 hover:bg-base-200 transition cursor-pointer flex gap-3 items-start">
-                      <span className="text-info mt-1">
-                        <FaEnvelope />
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium">
-                          New message received
-                        </p>
-                        <p className="text-xs text-base-content/60">
-                          5 minutes ago
-                        </p>
-                      </div>
-                    </li>
-                    <li className="px-4 py-3 hover:bg-base-200 transition cursor-pointer flex gap-3 items-start">
-                      <span className="text-warning mt-1">
-                        <FaExclamationCircle />
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium">System alert</p>
-                        <p className="text-xs text-base-content/60">
-                          15 minutes ago
-                        </p>
-                      </div>
-                    </li>
-                    <li className="px-4 py-3 hover:bg-base-200 transition cursor-pointer flex gap-3 items-start">
-                      <span className="text-success mt-1">
-                        <FaCheckCircle />
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium">
-                          Weekly report is ready
-                        </p>
-                        <p className="text-xs text-base-content/60">
-                          1 hour ago
-                        </p>
-                      </div>
-                    </li>
+                    {[
+                      {
+                        icon: <FaEnvelope />,
+                        color: "text-info",
+                        title: "New message received",
+                        time: "5 minutes ago",
+                      },
+                      {
+                        icon: <FaExclamationCircle />,
+                        color: "text-warning",
+                        title: "System alert",
+                        time: "15 minutes ago",
+                      },
+                      {
+                        icon: <FaCheckCircle />,
+                        color: "text-success",
+                        title: "Weekly report is ready",
+                        time: "1 hour ago",
+                      },
+                    ].map((notif, i) => (
+                      <li
+                        key={i}
+                        className="px-4 py-3 hover:bg-base-200 transition cursor-pointer flex gap-3 items-start"
+                      >
+                        <span className={`mt-1 ${notif.color}`}>
+                          {notif.icon}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium">{notif.title}</p>
+                          <p className="text-xs text-base-content/60">
+                            {notif.time}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                   <div className="px-4 py-2 border-t border-base-300 text-sm text-center hover:bg-base-200 cursor-pointer font-medium">
                     See all notifications
@@ -122,14 +127,14 @@ const Header = ({ onSidebarToggle }) => {
             </AnimatePresence>
           </div>
 
-          {/* Avatar + Dropdown */}
+          {/* Avatar + Menu */}
           <div className="relative">
             <button
               onClick={() => {
                 setMenuOpen(!menuOpen);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-2 btn btn-ghost px-2 py-1 rounded-full"
+              className="flex items-center gap-2 btn btn-ghost px-2 py-1 rounded-full transition-all"
             >
               <img
                 src="/logo_F/2.png"
@@ -142,24 +147,27 @@ const Header = ({ onSidebarToggle }) => {
             <AnimatePresence>
               {menuOpen && (
                 <motion.ul
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
+                  initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -5, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-md rounded-lg min-w-[10rem] w-screen max-w-xs py-2 z-50"
                 >
                   <li>
-                    <a
-                      href="/admin/profile"
-                      className="block px-4 py-2 hover:bg-base-200 cursor-pointer"
+                    <Link
+                      to="/admin/profile"
+                      className="block px-4 py-2 hover:bg-base-200"
                     >
                       Profile
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a className="block px-4 py-2 hover:bg-base-200 text-error">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 hover:bg-base-200 text-error"
+                    >
                       Logout
-                    </a>
+                    </button>
                   </li>
                 </motion.ul>
               )}

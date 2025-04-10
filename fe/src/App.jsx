@@ -109,7 +109,7 @@ function App() {
           <Route path="profile" element={<ProfilePage />}></Route>
         </Route>
         {/* Admin-end */}
-        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </>
   );

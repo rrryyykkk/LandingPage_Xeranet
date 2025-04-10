@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 import Toast from "../components/Admin/common/Toast";
 
 const AdminLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toats, setToats] = useState(null);
 
   const toggleSidebar = () => {
