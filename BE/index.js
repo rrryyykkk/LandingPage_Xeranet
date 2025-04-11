@@ -10,11 +10,30 @@ import logoPTRoutes from "./routes/logoPT.routes.js";
 import testimoniRoutes from "./routes/testimoni.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import cors from "cors";
+import helmet from "helmet";
+import { setCsp } from "./middleware/csp.js";
 
 dotenv.config();
 
 const app = express();
 
+// cors
+app.use(
+  cors({
+    origin: "http://localhost:5174",
+    credentials: true,
+  })
+);
+
+// CSP headers
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
+
+app.use(setCsp);
 // ENV
 const PORT = process.env.PORT;
 
