@@ -22,6 +22,7 @@ import IklanPopUp from "./components/LandingPage/IklanPopUp";
 import LogoPt from "./pages/Admin/LogoPt";
 import LoginPage from "./pages/Auth/Login";
 import ProfilePage from "./pages/Admin/Profile";
+import ProtectedRoutes from "./middleware/ProtectedRoutes";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -49,8 +50,8 @@ function App() {
               <LandingPageLayout>
                 <Hero />
                 <Service />
-                <LogoPartner />
                 <Testimoni />
+                <LogoPartner />
                 <IklanPopUp />
               </LandingPageLayout>
             </>
@@ -100,13 +101,62 @@ function App() {
             </AdminThemeProvider>
           }
         >
-          <Route index element={<DashboardAdmin />}></Route>
-          <Route path="blog" element={<BlogAdmin />}></Route>
-          <Route path="users" element={<UsersAdmin />}></Route>
-          <Route path="testimonials" element={<TestimonialsAdmin />}></Route>
-          <Route path="hero" element={<HeroAdmin />}></Route>
-          <Route path="logo-partner" element={<LogoPt />}></Route>
-          <Route path="profile" element={<ProfilePage />}></Route>
+          <Route
+            index
+            element={
+              <ProtectedRoutes>
+                <DashboardAdmin />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="blog"
+            element={
+              <ProtectedRoutes>
+                <BlogAdmin />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="users"
+            element={
+              <ProtectedRoutes>
+                <UsersAdmin />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="testimonials"
+            element={
+              <ProtectedRoutes>
+                <TestimonialsAdmin />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="hero"
+            element={
+              <ProtectedRoutes>
+                <HeroAdmin />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="logo-partner"
+            element={
+              <ProtectedRoutes>
+                <LogoPt />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoutes>
+                <ProfilePage />
+              </ProtectedRoutes>
+            }
+          ></Route>
         </Route>
         {/* Admin-end */}
         <Route path="/login" element={<LoginPage />} />

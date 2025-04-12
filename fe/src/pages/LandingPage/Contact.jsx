@@ -32,19 +32,19 @@ const Contact = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">Get in Touch</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">Hubungi Kami</h2>
           <p className="text-gray-400 text-base md:text-lg">
-            Have a question or just want to say hello? We're always ready to
-            talk.
+            Punya pertanyaan atau sekadar ingin menyapa? Kami selalu siap untuk
+            berbicara.
           </p>
         </div>
 
         {/* Content */}
-        <div className="grid md:grid-cols-2 gap-10 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-8 md:gap-12">
           {/* Contact Form */}
           <form
             onSubmit={handleSubmit}
-            className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a] transition-all duration-300 hover:shadow-2xl"
+            className="bg-[#121212]/60 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-lg border border-[#2a2a2a] w-full transition-all duration-300 hover:shadow-2xl"
           >
             <div className="mb-6">
               <label
@@ -107,61 +107,9 @@ const Contact = () => {
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 transition-colors duration-300 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl"
             >
-              🚀 Send Message
+              🚀 Kirim Pesan
             </button>
           </form>
-
-          {/* Social Links */}
-          <div className="bg-[#121212]/60 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#2a2a2a]">
-            <h3 className="text-2xl font-bold mb-4">Connect with Us</h3>
-            <ul className="space-y-4 text-gray-300 ">
-              <li>
-                <a
-                  href="#"
-                  aria-label="Facebook"
-                  className="flex items-center gap-3 hover:text-blue-400 transition"
-                >
-                  <FaFacebook /> Facebook
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-label="Twitter"
-                  className="flex items-center gap-3 hover:text-blue-400 transition"
-                >
-                  <FaTwitter /> Twitter
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
-                  aria-label="Instagram"
-                  className="flex items-center gap-3 hover:text-pink-500 transition"
-                >
-                  <FaInstagram /> Instagram
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-label="LinkedIn"
-                  className="flex items-center gap-3 hover:text-blue-500 transition"
-                >
-                  <FaLinkedin /> LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-label="YouTube"
-                  className="flex items-center gap-3 hover:text-red-500 transition"
-                >
-                  <FaYoutube /> YouTube
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </section>

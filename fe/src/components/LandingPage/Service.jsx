@@ -9,9 +9,9 @@ import net from "/4.png";
 const Services = () => {
   const services = [
     {
-      title: "Web Development",
+      title: "Software Development)",
       description:
-        "Professional website development with modern technologies and responsive design.",
+        "Kami menyediakan solusi pengembangan perangkat lunak yang disesuaikan dengan kebutuhan spesifik bisnis Anda. Tim kami terdiri dari pengembang berpengalaman yang ahli dalam berbagai platform dan teknologi, dari aplikasi web hingga perangkat lunak mobile. Kami bekerja dengan pendekatan yang mengutamakan kualitas, memastikan bahwa perangkat lunak yang kami buat memiliki kinerja optimal, mudah digunakan, dan sesuai dengan tujuan bisnis Anda.",
       icon: <FaTools className="text-blue-400 text-lg" />,
       img: web,
       features: [
@@ -22,21 +22,9 @@ const Services = () => {
       ],
     },
     {
-      title: "Mobile Development",
-      description: "Cross-platform mobile applications for iOS and Android.",
-      icon: <FaStar className="text-blue-400 text-lg" />,
-      img: phone,
-      features: [
-        "React Native development",
-        "Native iOS/Android apps",
-        "Push notifications",
-        "Offline capabilities",
-      ],
-    },
-    {
       title: "Cyber Security",
       description:
-        "Comprehensive security solutions to protect your digital assets.",
+        "Kami menyediakan solusi pengembangan perangkat lunak yang disesuaikan dengan kebutuhan spesifik bisnis Anda. Tim kami terdiri dari pengembang berpengalaman yang ahli dalam berbagai platform dan teknologi, dari aplikasi web hingga perangkat lunak mobile. Kami bekerja dengan pendekatan yang mengutamakan kualitas, memastikan bahwa perangkat lunak yang kami buat memiliki kinerja optimal, mudah digunakan, dan sesuai dengan tujuan bisnis Anda.",
       icon: <FaShieldAlt className="text-blue-400 text-lg" />,
       img: cyber,
       features: [
@@ -48,7 +36,8 @@ const Services = () => {
     },
     {
       title: "Networking",
-      description: "Enterprise networking solutions for optimal connectivity.",
+      description:
+        "Layanan jaringan kami dirancang untuk memastikan bahwa sistem komunikasi dan infrastruktur jaringan bisnis Anda berfungsi secara efisien dan aman. Kami menyediakan solusi jaringan yang mencakup desain, instalasi, pemeliharaan, dan optimasi infrastruktur jaringan. Dengan teknologi terkini, kami membantu menghubungkan sistem dan perangkat Anda dengan lancar, menjaga kecepatan, stabilitas, dan keamanan jaringan yang dapat diandalkan untuk mendukung operasional bisnis Anda.",
       icon: <FaClock className="text-blue-400 text-lg" />,
       img: net,
       features: [
@@ -61,7 +50,10 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="w-full bg-black text-white py-16 px-4">
+    <section
+      id="services"
+      className="w-full cursor-pointeru bg-black text-white py-16 px-4"
+    >
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -70,13 +62,17 @@ const Services = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-2">Our Services</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-2">Layanan Kami</h2>
           <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto">
-            Premium digital solutions tailored for your business
+            Di Xeranet Solutions Technology, kami menawarkan berbagai layanan
+            teknologi yang dirancang untuk memenuhi kebutuhan bisnis Anda.
+            Dengan pengalaman dan keahlian kami, kami memastikan setiap solusi
+            yang kami tawarkan tidak hanya efektif, tetapi juga aman dan
+            berkelanjutan. Berikut adalah layanan yang kami sediakan:
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <motion.div
               key={index}

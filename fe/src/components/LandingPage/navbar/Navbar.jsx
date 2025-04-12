@@ -4,10 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import NavLink from "./NavbarLink";
 
 // logo
-import { FaLinkedin } from "react-icons/fa";
+
 import { FaInstagramSquare } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebook } from "react-icons/fa";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -144,20 +142,11 @@ const Navbar = () => {
               transition={{ delay: 0.6 }}
               className="flex justify-center gap-6 mt-10 text-white text-2xl"
             >
-              <a href="#" aria-label="Facebook">
-                <FaFacebook />
-              </a>
-              <a href="#" aria-label="Twitter">
-                <FaXTwitter />
-              </a>
               <a
                 href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
                 aria-label="Instagram"
               >
-                <FaInstagramSquare />
-              </a>
-              <a href="#" aria-label="LinkedIn">
-                <FaLinkedin />
+                <FaInstagramSquare className="w-12 h-12" />
               </a>
             </motion.div>
           </motion.div>
