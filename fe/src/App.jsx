@@ -7,7 +7,7 @@ import About from "./pages/LandingPage/About";
 import Contact from "./pages/LandingPage/Contact";
 import Blog from "./pages/LandingPage/blog/Blog";
 // admin
-import BlogAdmin from "./pages/Admin/Blog.Admin";
+import BlogAdmin from "./pages/Admin/Blog";
 import UsersAdmin from "./pages/Admin/Users";
 import TestimonialsAdmin from "./pages/Admin/Testimonials";
 import HeroAdmin from "./pages/Admin/Hero";
@@ -23,6 +23,8 @@ import LogoPt from "./pages/Admin/LogoPt";
 import LoginPage from "./pages/Auth/Login";
 import ProfilePage from "./pages/Admin/Profile";
 import ProtectedRoutes from "./middleware/ProtectedRoutes";
+import NotificationsPage from "./pages/Admin/Notification";
+import Iklan from "./pages/Admin/Iklan";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -142,6 +144,14 @@ function App() {
             }
           ></Route>
           <Route
+            path="iklan"
+            element={
+              <ProtectedRoutes>
+                <Iklan />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
             path="logo-partner"
             element={
               <ProtectedRoutes>
@@ -154,6 +164,14 @@ function App() {
             element={
               <ProtectedRoutes>
                 <ProfilePage />
+              </ProtectedRoutes>
+            }
+          ></Route>
+          <Route
+            path="notification"
+            element={
+              <ProtectedRoutes>
+                <NotificationsPage />
               </ProtectedRoutes>
             }
           ></Route>

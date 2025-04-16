@@ -1,28 +1,31 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTestimonial, updateTestimonial } from "../../../services/api";
+import { useDispatch } from "react-redux";
+import {
+  addTestimonial,
+  editTestimonial,
+} from "../../../app/data/testimoniSlice";
 
-const TestimonialForm = ({ open, onClose, testimonial }) => {
+const FormTestimonials = ({ open, onClose, testimonial, onSuccess }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    name: "",
+    author: "",
     position: "",
     content: "",
     rating: 5,
     avatar: null,
   });
   const [preview, setPreview] = useState(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (testimonial) {
       setFormData({
-        name: testimonial.name,
-        position: testimonial.position,
-        content: testimonial.content,
-        rating: testimonial.rating,
+        author: testimonial.author || "",
+        position: testimonial.position || "",
+        content: testimonial.content || "",
+        rating: testimonial.rating || 5,
         avatar: null,
       });
-      setPreview(testimonial.avatar);
+      setPreview(testimonial.testimoniImage || null);
     }
   }, [testimonial]);
 
@@ -34,26 +37,32 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
     }
   };
 
-  const mutation = useMutation({
-    mutationFn: (data) =>
-      testimonial
-        ? updateTestimonial(testimonial.id, data)
-        : createTestimonial(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["testimonials"] });
-      onClose();
-    },
-  });
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null) {
-        formDataToSend.append(key, formData[key]);
+
+    const dataToSend = new FormData();
+    dataToSend.append("author", formData.author);
+    dataToSend.append("position", formData.position);
+    dataToSend.append("content", formData.content);
+    dataToSend.append("rating", formData.rating);
+    if (formData.avatar) {
+      dataToSend.append("testimoniImage", formData.avatar);
+    }
+
+    try {
+      if (testimonial) {
+        await dispatch(
+          editTestimonial({ id: testimonial._id, formData: dataToSend })
+        ).unwrap();
+      } else {
+        await dispatch(addTestimonial(dataToSend)).unwrap();
       }
-    });
-    mutation.mutate(formDataToSend);
+
+      if (onSuccess) onSuccess(); // 🚀 Trigger refresh from parent
+      onClose();
+    } catch (error) {
+      console.error("Gagal submit testimonial:", error);
+    }
   };
 
   if (!open) return null;
@@ -66,7 +75,7 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {testimonial ? "Edit Testimonial" : "Tambah Testimonial Baru"}
+            {testimonial ? "Edit Testimonial" : "Add New Testimonial"}
           </h2>
           <button
             type="button"
@@ -91,7 +100,7 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
               )}
             </div>
             <label className="btn btn-outline btn-sm">
-              Upload Foto
+              Upload Photo
               <input
                 type="file"
                 hidden
@@ -103,24 +112,25 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
 
           <input
             type="text"
-            placeholder="Nama"
+            placeholder="Author"
             className="input input-bordered w-full"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={formData.author}
+            onChange={(e) =>
+              setFormData({ ...formData, author: e.target.value })
+            }
             required
           />
           <input
             type="text"
-            placeholder="Posisi"
+            placeholder="Position"
             className="input input-bordered w-full"
             value={formData.position}
             onChange={(e) =>
               setFormData({ ...formData, position: e.target.value })
             }
-            required
           />
           <textarea
-            placeholder="Testimonial"
+            placeholder="Testimonial Content"
             className="textarea textarea-bordered w-full"
             rows={4}
             value={formData.content}
@@ -150,14 +160,10 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
 
         <div className="flex justify-end mt-6 gap-2">
           <button type="button" onClick={onClose} className="btn btn-ghost">
-            Batal
+            Cancel
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={mutation.isPending}
-          >
-            {testimonial ? "Update" : "Simpan"}
+          <button type="submit" className="btn btn-primary">
+            {testimonial ? "Update" : "Save"}
           </button>
         </div>
       </form>
@@ -165,4 +171,4 @@ const TestimonialForm = ({ open, onClose, testimonial }) => {
   );
 };
 
-export default TestimonialForm;
+export default FormTestimonials;

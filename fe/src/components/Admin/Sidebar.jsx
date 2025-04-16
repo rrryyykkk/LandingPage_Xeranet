@@ -4,22 +4,22 @@ import { NavLink } from "react-router-dom";
 import {
   MdDashboard,
   MdArticle,
-  MdGroups,
   MdStars,
   MdImage,
   MdBadge,
 } from "react-icons/md";
+import { FaTags } from "react-icons/fa";
 
 const menuItems = [
   { text: "Dashboard", icon: <MdDashboard size={22} />, path: "/admin" },
   { text: "Blog", icon: <MdArticle size={22} />, path: "/admin/blog" },
-  { text: "Users", icon: <MdGroups size={22} />, path: "/admin/users" },
   {
     text: "Testimonials",
     icon: <MdStars size={22} />,
     path: "/admin/testimonials",
   },
   { text: "Hero Background", icon: <MdImage size={22} />, path: "/admin/hero" },
+  { text: "Iklan", icon: <FaTags size={22} />, path: "/admin/iklan" },
   {
     text: "Logo Partner",
     icon: <MdBadge size={22} />,

@@ -1,37 +1,40 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getLogoPTs, deleteLogoPT } from "../../services/api";
+import { useEffect, useState } from "react";
 import LogoPTForm from "../../components/Admin/common/LogoPtForm";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLogoPTs, removeLogoPT } from "../../app/data/logoPTSlice";
 
 const LogoPT = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState(null);
-  const queryClient = useQueryClient();
+  const [toast, setToast] = useState(null);
+  const { logoPTs, isLoading } = useSelector((state) => state.logoPTs);
 
-  const { data, isPending } = useQuery({
-    queryKey: ["logoPT"],
-    queryFn: getLogoPTs,
-  });
+  console.log("logoPTs:", logoPTs);
+  const dispatch = useDispatch();
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteLogoPT,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["logoPT"] });
-    },
-  });
+  useEffect(() => {
+    dispatch(fetchLogoPTs());
+  }, [dispatch]);
 
   const handleEdit = (logo) => {
     setSelectedLogo(logo);
     setOpenForm(true);
   };
 
-  const handleDelete = (id) => {
-    if (confirm("Yakin hapus logo ini?")) {
-      deleteMutation.mutate(id);
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Yakin hapus logo ini?");
+    if (confirmDelete) {
+      try {
+        await dispatch(removeLogoPT(id));
+        dispatch(fetchLogoPTs());
+        setToast({ type: "success", message: "Logo berhasil dihapus" });
+      } catch (error) {
+        setToast({ type: "error", message: "Gagal menghapus logo", error });
+      }
     }
   };
 
-  if (isPending) return <div className="text-center py-6">Loading...</div>;
+  if (isLoading) return <div className="text-center py-6">Loading...</div>;
 
   return (
     <div className="p-4">
@@ -47,13 +50,22 @@ const LogoPT = () => {
           Tambah Logo
         </button>
       </div>
+      {toast && (
+        <div
+          className={`toast ${
+            toast.type === "success" ? "toast-success" : "toast-error"
+          }`}
+        >
+          <div className="toast-body">{toast.message}</div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data?.logoPTs?.map((logo) => (
+        {logoPTs?.map((logo) => (
           <div key={logo._id} className="card bg-base-100 shadow-md">
             <figure>
               <img
-                src={logo.logoImage}
+                src={logo.logoPTImage}
                 alt={logo.namaPT}
                 className="w-full h-32 object-contain p-4"
               />

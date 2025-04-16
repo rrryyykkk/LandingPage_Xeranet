@@ -6,12 +6,25 @@ import {
   getAllTestimoni,
   updateTestimoni,
 } from "../controllers/testimoni.controllers.js";
+import { upload } from "../middleware/multer.js";
 
 const router = express.Router();
 
 router.get("/", getAllTestimoni);
-router.post("/create", createTestimoni);
-router.put("/update/:id", updateTestimoni);
+router.post(
+  "/create",
+  verifyIdToken,
+  verifyAdmin,
+  upload.single("testimoniImage"),
+  createTestimoni
+);
+router.put(
+  "/update/:id",
+  verifyIdToken,
+  verifyAdmin,
+  upload.single("testimoniImage"),
+  updateTestimoni
+);
 router.delete("/delete/:id", verifyIdToken, verifyAdmin, deleteTestimoni);
 
 export default router;

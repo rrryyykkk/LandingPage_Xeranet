@@ -6,6 +6,7 @@ import {
   isValidImageUrl,
   uploadToCloudinary,
 } from "../utils/uploadToCloudinary.js";
+import admin from "../config/firebase.js";
 
 export const updateProfile = [
   upload.single("image"),
@@ -119,6 +120,32 @@ export const updateProfile = [
       console.time("Save User");
       const updatedUser = await user.save();
       console.timeEnd("Save User");
+
+      // simpan ke firebase
+      console.time("Update Firebase");
+      if (user.firebaseId) {
+        const updatedUserFirebase = {};
+
+        if (email && email !== user.email) {
+          updatedUserFirebase.email = email;
+        }
+
+        if (oldPassword && newPassword) {
+          updatedUserFirebase.password = newPassword;
+        }
+        if (fullName) {
+          updatedUserFirebase.displayName = fullName;
+        }
+
+        if (imgProfile) {
+          updatedUserFirebase.photoURL = imgProfile;
+        }
+
+        if (Object.keys(updatedUserFirebase).length > 0) {
+          await admin.auth().updateUser(user.firebaseId, updatedUserFirebase);
+        }
+      }
+      console.timeEnd("Update Firebase");
 
       console.timeEnd("Total Update");
       res.status(200).json({

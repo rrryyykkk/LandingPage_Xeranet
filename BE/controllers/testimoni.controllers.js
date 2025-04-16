@@ -1,139 +1,178 @@
-import testimoniModels from "../models/testimoni.models.js";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
+import Testimoni from "../models/testimoni.models.js";
+import Notification from "../models/notification.models.js";
+import {
+  uploadToCloudinary,
+  isValidImageUrl,
+  downloadAndUpload,
+} from "../utils/uploadToCloudinary.js";
 
+// ✅ GET All Testimoni
 export const getAllTestimoni = async (req, res) => {
   try {
-    let { page = 1, limit = 10, search } = req.query;
-
-    // Konversi page dan limit ke integer & validasi
-    page = Math.max(parseInt(page), 1);
-    limit = Math.max(parseInt(limit), 1);
-
-    const filters = {};
-    if (search) filters.author = { $regex: search, $options: "i" };
-
-    // Hitung total testimoni
-    const totalTestimoni = await testimoniModels.countDocuments(filters);
-
-    // Query testimoni
-    const testimoni = await testimoniModels
-      .find(filters)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      testimoni,
-      currentPage: page,
-      totalPage: Math.ceil(totalTestimoni / limit),
-      totalTestimoni: totalTestimoni,
-    });
+    const testimoni = await Testimoni.find().sort({ createdAt: -1 });
+    res.status(200).json({ testimoni, success: true });
   } catch (error) {
-    console.error("Error getTestimoni", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error getAllTestimoni", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
 
+// ✅ CREATE Testimoni
 export const createTestimoni = async (req, res) => {
   try {
-    const { author, content, rating } = req.body;
-
-    let testimoniImage = null;
-
-    if (req.file?.testimoniImage) {
-      testimoniImage = await uploadToCloudinary(
-        req.file.testimoniImage[0].buffer,
-        "testimoni",
-        req.file.testimoniImage[0].mimetype
-      );
-    }
-
-    const newTestimoni = await testimoniModels.create({
+    const {
       author,
       content,
-      testimoniImage,
       rating,
+      testimoniImage: testimoniImageUrl,
+      createdBy,
+    } = req.body;
+    let testimoniImage = "";
+
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "testimoni"
+      );
+      testimoniImage = result.url;
+    } else if (testimoniImageUrl && isValidImageUrl(testimoniImageUrl)) {
+      const result = await downloadAndUpload(testimoniImageUrl, "testimoni");
+      testimoniImage = result.url;
+    }
+
+    const newTestimoni = await Testimoni.create({
+      author,
+      content,
+      rating,
+      testimoniImage,
     });
 
-    await newTestimoni.save();
-    res
-      .status(200)
-      .json({
-        message: "Testimoni created",
-        testimoni: newTestimoni,
-        success: true,
-      });
+    await Notification.create({
+      from: createdBy || "admin",
+      to: "admin",
+      type: "create",
+      message: `Testimoni dari "${author}" telah dibuat oleh ${
+        createdBy || "admin"
+      }.`,
+    });
+
+    res.status(201).json({
+      message: "Testimoni created",
+      testimoni: newTestimoni,
+      success: true,
+    });
   } catch (error) {
-    console.log("Error createTestimoni", error);
-    res.status(500).json({ message: "Internal server error", success: false });
+    console.error("Error createTestimoni", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
 
+// ✅ UPDATE Testimoni
 export const updateTestimoni = async (req, res) => {
   try {
-    const { author, content, rating } = req.body;
+    const {
+      author,
+      content,
+      rating,
+      testimoniImage: testimoniImageUrl,
+      updatedBy,
+    } = req.body;
+    const { id } = req.params;
 
-    // validasi data
-    let updateFields = {};
+    let updateData = {};
+    if (author) updateData.author = author;
+    if (content) updateData.content = content;
+    if (rating) updateData.rating = rating;
 
-    // cek ad field yg diisi, dan masukan ke updateFields
-    if (author) updateFields.author = author;
-    if (content) updateFields.content = content;
-    if (rating) updateFields.rating = rating;
-
-    // edit image
-    if (req.file?.testimoniImage) {
-      updateFields.testimoniImage = await uploadToCloudinary(
-        req.file.testimoniImage[0].buffer,
-        "testimoni",
-        req.file.testimoniImage[0].mimetype
+    if (req.file) {
+      const result = await uploadToCloudinary(
+        req.file.buffer,
+        req.file,
+        "testimoni"
       );
+      updateData.testimoniImage = result.url;
+    } else if (testimoniImageUrl && isValidImageUrl(testimoniImageUrl)) {
+      const result = await downloadAndUpload(testimoniImageUrl, "testimoni");
+      updateData.testimoniImage = result.url;
     }
 
-    if (Object.keys(updateFields).length === 0) {
+    if (Object.keys(updateData).length === 0) {
       return res
         .status(400)
         .json({ message: "No data to update", success: false });
     }
 
-    const updatedTestimoni = await testimoniModels.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      { new: true }
-    );
+    const updated = await Testimoni.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
 
-    if (!updatedTestimoni) {
+    if (!updated) {
       return res
         .status(404)
         .json({ message: "Testimoni not found", success: false });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Testimoni updated",
-        testimoni: updatedTestimoni,
-        success: true,
-      });
+    await Notification.create({
+      from: updatedBy || "admin",
+      to: "admin",
+      type: "update",
+      message: `Testimoni dari "${updated.author}" telah diperbarui oleh ${
+        updatedBy || "admin"
+      }.`,
+    });
+
+    res.status(200).json({
+      message: "Testimoni updated",
+      testimoni: updated,
+      success: true,
+    });
   } catch (error) {
-    console.log("Error updateTestimoni", error);
-    res.status(500).json({ message: "Internal server error", success: false });
+    console.error("Error updateTestimoni", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
 
+// ✅ DELETE Testimoni
 export const deleteTestimoni = async (req, res) => {
   try {
-    const deleteTestimoni = await testimoniModels.findByIdAndDelete(
-      req.params.id
-    );
-    if (!deleteTestimoni) {
+    const { deletedBy } = req.body;
+
+    const deleted = await Testimoni.findByIdAndDelete(req.params.id);
+    if (!deleted) {
       return res
         .status(404)
         .json({ message: "Testimoni not found", success: false });
     }
+
+    await Notification.create({
+      from: deletedBy || "admin",
+      to: "admin",
+      type: "delete",
+      message: `Testimoni dari "${deleted.author}" telah dihapus oleh ${
+        deletedBy || "admin"
+      }.`,
+    });
+
     res.status(200).json({ message: "Testimoni deleted", success: true });
   } catch (error) {
-    console.log("Error deleteTestimoni", error);
-    res.status(500).json({ message: "Internal server error", success: false });
+    console.error("Error deleteTestimoni", error);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };

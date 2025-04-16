@@ -59,35 +59,40 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // cek user di db
-    const user = await User.findOne({ email }).select("+password");
-    if (!user || !user.password) {
-      return res.status(400).json({ message: "Email or Password incorrect" });
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ message: "ID token is required" });
     }
 
-    // banding password yang sudah ada di DB dan pembuatan token
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(400).json({ message: "Email or Password incorrect" });
+    // Verifikasi idToken dari Firebase Auth
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    if (!decoded || !decoded.uid) {
+      return res.status(401).json({ message: "Invalid ID token" });
     }
 
-    // token
-    const customToken = await admin
-      .auth()
-      .createCustomToken(user._id.toString());
+    // Cek user di MongoDB
+    let user = await User.findById(decoded.uid);
+    if (!user) {
+      // Auto-create kalau belum ada (opsional)
+      user = await User.create({
+        _id: decoded.uid,
+        email: decoded.email,
+        name: decoded.name || "",
+        role: "admin", // default role atau sesuai kebutuhan
+      });
+    }
 
-    const idToken = await getIdToken(customToken);
-    console.log("idToken:", idToken);
+    // Set session cookie
+    res.cookie("authToken", idToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
 
-    res.cookie("authToken", idToken, { httpOnly: true });
-    res.json({ message: "Login success" });
+    res.json({ message: "Login success", user });
   } catch (error) {
-    console.log("Login error", error);
-    return res
-      .status(500)
-      .json({ message: `failed to login: ${error.message}` });
+    console.error("Login error", error);
+    res.status(500).json({ message: `Login failed: ${error.message}` });
   }
 };
 

@@ -6,28 +6,28 @@ import Toast from "../components/Admin/common/Toast";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [toats, setToats] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  const showToats = () => {
-    setToats(null);
+  const showToast = () => {
+    setToast(null);
   };
   return (
     <div className="min-h-screen flex bg-base-100">
       <Sidebar open={isSidebarOpen} />
       <div className="flex-1 flex flex-col">
         <Header onSidebarToggle={toggleSidebar} />
-        <main className="p-4">
+        <main className="p-4 sm:pl-12">
           <Outlet />
         </main>
-        {toats && (
+        {toast && (
           <Toast
-            type={toats.type}
-            message={toats.message}
-            onClose={showToats}
+            type={toast.type}
+            message={toast.message}
+            onClose={showToast}
           />
         )}
       </div>

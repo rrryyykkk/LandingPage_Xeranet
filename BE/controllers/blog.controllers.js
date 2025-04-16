@@ -58,7 +58,13 @@ export const getBlogById = async (req, res) => {
 // ✅ CREATE Blog
 export const createBlog = async (req, res) => {
   try {
-    const { title, content, author, blogImage: blogImageUrl } = req.body;
+    const {
+      title,
+      content,
+      author,
+      blogImage: blogImageUrl,
+      status,
+    } = req.body;
     let blogImage = "";
 
     if (req.file) {
@@ -78,6 +84,7 @@ export const createBlog = async (req, res) => {
       content,
       author,
       blogImage,
+      status,
     });
 
     await Notification.create({
@@ -97,10 +104,17 @@ export const createBlog = async (req, res) => {
 // ✅ UPDATE Blog
 export const updateBlog = async (req, res) => {
   try {
-    const { title, content, author, blogImage: blogImageUrl } = req.body;
+    const {
+      title,
+      content,
+      author,
+      blogImage: blogImageUrl,
+      status,
+    } = req.body;
     let updateData = {};
     if (title) updateData.title = title;
     if (content) updateData.content = content;
+    if (status) updateData.status = status;
 
     if (req.file) {
       const result = await uploadToCloudinary(

@@ -10,19 +10,32 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAdminTheme } from "../../context/ThemeContext";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getMe, logout } from "../../app/users/authSlice";
 
 const Header = ({ onSidebarToggle }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { theme, toggleTheme } = useAdminTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    // Implementasi logout (hapus token, dsb)
-    navigate("/admin/login");
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(getMe());
+  }, [dispatch]);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.log("Logout error:", error);
+    }
   };
 
   return (
@@ -120,7 +133,7 @@ const Header = ({ onSidebarToggle }) => {
                     ))}
                   </ul>
                   <div className="px-4 py-2 border-t border-base-300 text-sm text-center hover:bg-base-200 cursor-pointer font-medium">
-                    See all notifications
+                    <Link to="/admin/notification">See all notifications</Link>
                   </div>
                 </motion.div>
               )}
@@ -128,51 +141,53 @@ const Header = ({ onSidebarToggle }) => {
           </div>
 
           {/* Avatar + Menu */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setMenuOpen(!menuOpen);
-                setShowNotifications(false);
-              }}
-              className="flex items-center gap-2 btn btn-ghost px-2 py-1 rounded-full transition-all"
-            >
-              <img
-                src="/logo_F/2.png"
-                alt="avatar"
-                className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"
-              />
-              <FaChevronDown className="text-xs" />
-            </button>
+          {user && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setMenuOpen(!menuOpen);
+                  setShowNotifications(false);
+                }}
+                className="flex items-center gap-2 btn btn-ghost px-2 py-1 rounded-full transition-all"
+              >
+                <img
+                  src={user?.imgProfile || "/default-avatar.png"}
+                  alt="avatar"
+                  className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"
+                />
+                <FaChevronDown className="text-xs" />
+              </button>
 
-            <AnimatePresence>
-              {menuOpen && (
-                <motion.ul
-                  initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-md rounded-lg min-w-[10rem] w-screen max-w-xs py-2 z-50"
-                >
-                  <li>
-                    <Link
-                      to="/admin/profile"
-                      className="block px-4 py-2 hover:bg-base-200"
-                    >
-                      Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 hover:bg-base-200 text-error"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </motion.ul>
-              )}
-            </AnimatePresence>
-          </div>
+              <AnimatePresence>
+                {menuOpen && (
+                  <motion.ul
+                    initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -5, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 bg-base-100 border border-base-300 shadow-md rounded-lg min-w-[10rem] w-screen max-w-xs py-2 z-50"
+                  >
+                    <li>
+                      <Link
+                        to="/admin/profile"
+                        className="block px-4 py-2 hover:bg-base-200"
+                      >
+                        Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-base-200 text-error"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </div>
     </motion.header>

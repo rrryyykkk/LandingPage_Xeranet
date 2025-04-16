@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { addHero, editHero, fetchHeroes } from "../../../app/data/heroSlice";
+import { addIklan, editIklan, fetchIklan } from "../../../app/data/iklanSlice";
 
-const HeroForm = ({ open, onClose, hero }) => {
+const IklanForm = ({ open, onClose, iklan }) => {
   const {
     register,
     handleSubmit,
@@ -15,14 +15,14 @@ const HeroForm = ({ open, onClose, hero }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (hero) {
-      setValue("title", hero.title);
-      setValue("isActive", hero.isActive);
-      setValue("heroImage", hero.heroImage || "");
+    if (iklan) {
+      setValue("title", iklan.title);
+      setValue("isActive", iklan.isActive);
+      setValue("iklanImage", iklan.iklanImage || "");
     } else {
       reset();
     }
-  }, [hero, setValue, reset]);
+  }, [iklan, setValue, reset]);
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -30,23 +30,24 @@ const HeroForm = ({ open, onClose, hero }) => {
     formData.append("isActive", data.isActive);
     formData.append("createdBy", "admin");
 
-    if (data.heroImageFile?.[0]) {
-      formData.append("heroImage", data.heroImageFile[0]);
-    } else if (data.heroImage) {
-      formData.append("heroImage", data.heroImage);
+    if (data.iklanImageFile?.[0]) {
+      formData.append("iklanImage", data.iklanImageFile[0]);
+    } else if (data.iklanImage) {
+      formData.append("iklanImage", data.iklanImage);
     }
 
     try {
-      if (hero) {
-        await dispatch(editHero({ id: hero._id, formData })).unwrap();
+      if (iklan) {
+        await dispatch(editIklan({ id: iklan._id, formData })).unwrap();
       } else {
-        await dispatch(addHero(formData)).unwrap();
+        await dispatch(addIklan(formData)).unwrap();
       }
-      dispatch(fetchHeroes());
+
+      dispatch(fetchIklan());
       onClose();
+      reset();
     } catch (error) {
-      console.error("Gagal menyimpan hero:", error);
-      // Bisa tambahkan toast atau alert di sini
+      console.error("Gagal menyimpan iklan:", error);
     }
   };
 
@@ -56,7 +57,7 @@ const HeroForm = ({ open, onClose, hero }) => {
     <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
       <div className="bg-white dark:bg-base-100 p-6 rounded-xl w-full max-w-lg shadow-lg relative">
         <h3 className="text-xl font-bold mb-4">
-          {hero ? "Edit Hero" : "Tambah Hero"}
+          {iklan ? "Edit Iklan" : "Tambah Iklan"}
         </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -66,16 +67,16 @@ const HeroForm = ({ open, onClose, hero }) => {
               type="text"
               {...register("title", { required: true })}
               className="input input-bordered w-full"
-              placeholder="Judul hero"
+              placeholder="Judul Iklan"
             />
           </div>
 
           <div>
-            <label className="label">Upload Gambar Hero</label>
+            <label className="label">Upload Gambar Iklan</label>
             <input
               type="file"
               accept="image/*"
-              {...register("heroImageFile")}
+              {...register("iklanImageFile")}
               className="file-input file-input-bordered w-full"
             />
           </div>
@@ -84,7 +85,7 @@ const HeroForm = ({ open, onClose, hero }) => {
             <label className="label">Atau Gunakan URL Gambar</label>
             <input
               type="text"
-              {...register("heroImage")}
+              {...register("iklanImage")}
               className="input input-bordered w-full"
               placeholder="https://contoh.com/gambar.jpg"
             />
@@ -97,14 +98,17 @@ const HeroForm = ({ open, onClose, hero }) => {
                 {...register("isActive")}
                 className="checkbox checkbox-primary"
               />
-              <span className="label-text">Aktifkan Hero Ini</span>
+              <span className="label-text">Aktifkan Iklan Ini</span>
             </label>
           </div>
 
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                reset();
+                onClose();
+              }}
               className="btn btn-ghost"
               disabled={isSubmitting}
             >
@@ -116,19 +120,22 @@ const HeroForm = ({ open, onClose, hero }) => {
               disabled={isSubmitting}
             >
               {isSubmitting
-                ? hero
+                ? iklan
                   ? "Menyimpan..."
                   : "Menambahkan..."
-                : hero
+                : iklan
                 ? "Simpan Perubahan"
-                : "Tambah Hero"}
+                : "Tambah Iklan"}
             </button>
           </div>
         </form>
 
         <button
-          onClick={onClose}
-          className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost"
+          onClick={() => {
+            reset();
+            onClose();
+          }}
+          className="absolute top-3 right-3 btn btn-sm btn-circle btn-ghost curosr-pointer"
         >
           ✕
         </button>
@@ -137,4 +144,4 @@ const HeroForm = ({ open, onClose, hero }) => {
   );
 };
 
-export default HeroForm;
+export default IklanForm;

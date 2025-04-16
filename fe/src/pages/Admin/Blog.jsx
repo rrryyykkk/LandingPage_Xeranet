@@ -1,40 +1,49 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getBlogs, deleteBlog } from "../../services/blogService";
+import { useEffect, useState } from "react";
 import BlogForm from "../../components/Admin/common/BlogForm";
 import Toast from "../../components/Admin/common/Toast";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteExistingBlog, fetchBlogs } from "../../app/data/blogSlice";
 
 const Blog = () => {
   const [openForm, setOpenForm] = useState(false);
+
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [toast, setToast] = useState(null);
-  const queryClient = useQueryClient();
+  const { blogs, isLoading } = useSelector((state) => state.blog);
+  const dispatch = useDispatch();
 
-  const { data: blogs, isLoading } = useQuery({
-    queryKey: ["blogs"],
-    queryFn: getBlogs,
-  });
+  useEffect(() => {
+    dispatch(fetchBlogs());
+  }, [dispatch]);
+  console.log("blog", blogs);
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteBlog,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-      setToast({ type: "success", message: "Blog berhasil dihapus!" });
-    },
-    onError: () => {
-      setToast({ type: "error", message: "Gagal menghapus blog." });
-    },
-  });
-
-  const handleEdit = (blog) => {
-    setSelectedBlog(blog);
+  const handleEdit = (blogs) => {
+    setSelectedBlog(blogs);
     setOpenForm(true);
   };
 
-  const handleDelete = (id) => {
-    if (confirm("Apakah Anda yakin ingin menghapus blog ini?")) {
-      deleteMutation.mutate(id);
+  const handleCreate = () => {
+    setSelectedBlog(null);
+    setOpenForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Apakah Anda yakin ingin menghapus blog ini?"
+    );
+    if (confirmDelete) {
+      try {
+        await dispatch(deleteExistingBlog(id)).unwrap();
+        setToast({ type: "success", message: "Blog berhasil dihapus" });
+        dispatch(fetchBlogs());
+      } catch (error) {
+        setToast({
+          type: "error",
+          message: "Gagal menghapus blog",
+          error: error.message,
+        });
+      }
     }
   };
 
@@ -46,13 +55,7 @@ const Blog = () => {
 
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Kelola Blog</h1>
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setSelectedBlog(null);
-            setOpenForm(true);
-          }}
-        >
+        <button className="btn btn-primary" onClick={handleCreate}>
           Tambah Blog
         </button>
       </div>
@@ -71,7 +74,7 @@ const Blog = () => {
             {blogs?.map((blog) => (
               <tr key={blog.id}>
                 <td>{blog.title}</td>
-                <td>{new Date(blog.created_at).toLocaleDateString()}</td>
+                <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
                 <td>
                   <span
                     className={`badge ${
@@ -92,7 +95,7 @@ const Blog = () => {
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDelete(blog.id)}
+                      onClick={() => handleDelete(blog._id)}
                       className="btn btn-xs btn-outline btn-error"
                     >
                       <FaTrash />

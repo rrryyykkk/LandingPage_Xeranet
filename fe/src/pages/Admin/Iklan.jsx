@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
-import HeroForm from "../../components/Admin/common/heroForm";
+import IklanForm from "../../components/Admin/common/IklanForm"; // form create/update Hero
 import { useDispatch, useSelector } from "react-redux";
-import { fetchHeroes, removeHero } from "../../app/data/heroSlice";
+import { fetchIklan, removeIklan } from "../../app/data/iklanSlice";
 
-const Hero = () => {
+const Iklan = () => {
   const [openForm, setOpenForm] = useState(false);
-  const [selectedHero, setSelectedHero] = useState(null);
+  const [selectedIklan, setSelectedIklan] = useState(null);
   const [toast, setToast] = useState(null);
-  const { heroes, isLoading, error } = useSelector((state) => state.hero);
+  const { iklan, isLoading } = useSelector((state) => state.iklan);
 
+  console.log("iklan:", iklan);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchHeroes());
+    dispatch(fetchIklan());
   }, [dispatch]);
 
   const handleEdit = (hero) => {
-    setSelectedHero(hero);
+    setSelectedIklan(hero);
     setOpenForm(true);
   };
 
@@ -24,8 +25,8 @@ const Hero = () => {
     const confirmDelete = window.confirm("Yakin hapus hero ini?");
     if (confirmDelete) {
       try {
-        await dispatch(removeHero(id)).unwrap();
-        dispatch(fetchHeroes());
+        await dispatch(removeIklan(id));
+        dispatch(fetchIklan());
         setToast({ type: "success", message: "Hero berhasil dihapus" });
       } catch (error) {
         setToast({ type: "error", message: "Gagal menghapus hero", error });
@@ -37,55 +38,54 @@ const Hero = () => {
 
   return (
     <div className="p-4">
-      {toast && (
-        <div
-          className={`alert ${
-            toast.type === "success" ? "alert-success" : "alert-error"
-          } mb-4`}
-        >
-          {toast.message}
-        </div>
-      )}
-      {error && <div className="text-red-500">Error: {error}</div>}
-
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Hero Section</h2>
+        <h2 className="text-2xl font-bold">Iklan Section</h2>
         <button
           onClick={() => {
-            setSelectedHero(null);
+            setSelectedIklan(null);
             setOpenForm(true);
           }}
           className="btn btn-primary"
         >
-          Tambah Hero
+          Tambah Iklan
         </button>
       </div>
 
+      {toast && (
+        <div
+          className={`toast ${
+            toast.type === "success" ? "toast-success" : "toast-error"
+          }`}
+        >
+          <div className="toast-body">{toast.message}</div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {heroes?.map((hero) => (
-          <div key={hero._id} className="card bg-base-100 shadow-md">
+        {iklan?.map((iklan) => (
+          <div key={iklan._id} className="card bg-base-100 shadow-md">
             <figure>
               <img
-                src={hero.heroImage}
-                alt={hero.title}
+                src={iklan.iklanImage}
+                alt={iklan.title}
                 className="w-full h-48 object-cover"
               />
             </figure>
             <div className="card-body">
-              <h3 className="card-title">{hero.title}</h3>
+              <h3 className="card-title">{iklan.title}</h3>
               <p className="text-sm text-gray-500">
-                Status: {hero.isActive ? "Aktif" : "Tidak Aktif"}
+                Status: {iklan.isActive ? "Aktif" : "Tidak Aktif"}
               </p>
               <div className="card-actions justify-end">
                 <button
                   className="btn btn-sm btn-info"
-                  onClick={() => handleEdit(hero)}
+                  onClick={() => handleEdit(iklan)}
                 >
                   Edit
                 </button>
                 <button
                   className="btn btn-sm btn-error"
-                  onClick={() => handleDelete(hero._id)}
+                  onClick={() => handleDelete(iklan._id)}
                 >
                   Hapus
                 </button>
@@ -95,13 +95,13 @@ const Hero = () => {
         ))}
       </div>
 
-      <HeroForm
+      <IklanForm
         open={openForm}
         onClose={() => setOpenForm(false)}
-        hero={selectedHero}
+        iklan={selectedIklan}
       />
     </div>
   );
 };
 
-export default Hero;
+export default Iklan;

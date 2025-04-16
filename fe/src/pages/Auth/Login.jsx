@@ -1,15 +1,65 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { useDispatch, useSelector } from "react-redux";
+import { getMe, login } from "../../app/users/authSlice";
+import { useNavigate } from "react-router-dom";
+import Toast from "../../components/Admin/common/Toast";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../../firebase";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [toast, setToast] = useState(null);
+  const { user, loading, error } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked (UX only)");
-    // Nanti bisa kamu ganti dengan Firebase Auth Google login
+  useEffect(() => {
+    dispatch(getMe());
+  }, [dispatch]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      await dispatch(login({ email, password })).unwrap();
+      setToast({ type: "success", message: "Login berhasil" });
+
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
+    } catch (error) {
+      console.log("Login Error:", error);
+      setToast({ type: "error", message: error.message });
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
+
+      // Optional: bisa dikirim ke backend kalau perlu
+      dispatch(getMe());
+      setToast({ type: "success", message: "Login Google berhasil" });
+
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      setToast({ type: "error", message: error.message });
+    }
   };
 
   return (
@@ -27,7 +77,7 @@ const LoginPage = () => {
           Masuk ke akun admin Anda
         </p>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleLogin}>
           <div>
             <label className="label">
               <span className="label-text">Email</span>
@@ -37,6 +87,8 @@ const LoginPage = () => {
               placeholder="admin@example.com"
               className="input input-bordered w-full"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -50,10 +102,12 @@ const LoginPage = () => {
                 placeholder="••••••••"
                 className="input input-bordered w-full pr-10"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/70 hover:text-primary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/70 hover:text-primary cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -71,19 +125,29 @@ const LoginPage = () => {
             </a>
           </div>
 
-          <button className="btn btn-primary w-full mt-4">Masuk</button>
+          <button className="btn btn-primary w-full mt-4" disabled={loading}>
+            {loading ? "Loading..." : "Login"}
+          </button>
         </form>
 
         <div className="divider text-sm text-base-content/60">atau</div>
 
         <button
-          onClick={handleGoogleLogin}
+          onClick={loginWithGoogle}
           className="btn btn-outline w-full flex items-center justify-center gap-2"
         >
           <FcGoogle className="text-xl" />
           Login dengan Google
         </button>
       </motion.div>
+
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createLogoPT, updateLogoPT } from "../../../services/api";
+import { useDispatch } from "react-redux";
+import { addLogoPT, editLogoPT } from "../../../app/data/logoPTSlice";
 
 const LogoPTForm = ({ open, onClose, logo }) => {
   const {
@@ -11,34 +11,37 @@ const LogoPTForm = ({ open, onClose, logo }) => {
     formState: { isSubmitting },
   } = useForm();
 
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: logo ? updateLogoPT : createLogoPT,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["logoPT"] });
-      onClose();
-      reset();
-    },
-  });
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (logo) {
-      reset(logo);
+      reset({
+        namaPT: logo.title || "", // sesuai field backend
+        logoImage: null,
+      });
     } else {
-      reset({ namaPT: "", logoImage: "" });
+      reset({ namaPT: "", logoImage: null });
     }
   }, [logo, reset]);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("namaPT", data.namaPT);
-    if (data.logoImage[0]) {
-      formData.append("logoImage", data.logoImage[0]);
+    formData.append("title", data.namaPT);
+    if (data.logoImage && data.logoImage[0]) {
+      formData.append("logoPTImage", data.logoImage[0]);
     }
-    if (logo) formData.append("_id", logo._id);
 
-    mutation.mutate(formData);
+    try {
+      if (logo) {
+        await dispatch(editLogoPT({ id: logo._id, formData })).unwrap();
+      } else {
+        await dispatch(addLogoPT(formData)).unwrap();
+      }
+
+      onClose();
+    } catch (error) {
+      console.error("Gagal menyimpan data:", error);
+    }
   };
 
   if (!open) return null;
@@ -66,9 +69,9 @@ const LogoPTForm = ({ open, onClose, logo }) => {
               className="file-input file-input-bordered w-full"
               {...register("logoImage")}
             />
-            {logo?.logoImage && (
+            {logo?.logoPTImage && (
               <img
-                src={logo.logoImage}
+                src={logo.logoPTImage}
                 alt="Preview"
                 className="mt-2 h-24 object-contain"
               />

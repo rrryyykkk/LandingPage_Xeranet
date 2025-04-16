@@ -1,6 +1,6 @@
-import monggoose from "mongoose";
+import mongoose from "mongoose";
 
-const blogSchema = new monggoose.Schema(
+const blogSchema = new mongoose.Schema(
   {
     blogId: {
       type: String,
@@ -22,6 +22,11 @@ const blogSchema = new monggoose.Schema(
     blogImage: {
       type: String,
     },
+    status: {
+      type: String,
+      enum: ["draft", "publish"],
+      default: "draft",
+    },
   },
   { timestamps: true }
 );
@@ -29,4 +34,4 @@ const blogSchema = new monggoose.Schema(
 blogSchema.index({ title: "text", content: "text" });
 blogSchema.index({ blogId: 1 });
 
-export default monggoose.model("Blog", blogSchema);
+export default mongoose.model("Blog", blogSchema);

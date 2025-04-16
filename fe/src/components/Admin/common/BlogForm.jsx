@@ -1,60 +1,82 @@
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react";
-import { createBlog, updateBlog } from "../../../services/blogService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { FaRegTimesCircle } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { createNewBlog, updateExistingBlog } from "../../../app/data/blogSlice";
 
 const BlogForm = ({ open, onClose, blog, setToast }) => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
+    blogImage: "",
     status: "draft",
   });
 
-  const queryClient = useQueryClient();
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (blog) {
       setFormData({
         title: blog.title,
         content: blog.content,
+        blogImage: blog.blogImage,
         status: blog.status,
       });
     } else {
-      setFormData({
-        title: "",
-        content: "",
-        status: "draft",
-      });
+      setFormData({ title: "", content: "", blogImage: "", status: "draft" });
     }
+    setImageFile(null);
   }, [blog]);
 
-  const mutation = useMutation({
-    mutationFn: (data) => (blog ? updateBlog(blog.id, data) : createBlog(data)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-      onClose();
-      setToast &&
-        setToast({
-          type: "success",
-          message: blog
-            ? "Blog berhasil diupdate!"
-            : "Blog berhasil ditambahkan!",
-        });
-    },
-    onError: () => {
-      setToast &&
-        setToast({
-          type: "error",
-          message: blog ? "Gagal mengupdate blog." : "Gagal menambahkan blog.",
-        });
-    },
-  });
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setFormData((prev) => ({ ...prev, blogImage: "" })); // clear URL if file selected
+    }
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    setLoading(true);
+    try {
+      const payload = new FormData();
+      payload.append("title", formData.title);
+      payload.append("content", formData.content);
+      payload.append("status", formData.status);
+
+      if (imageFile) {
+        // ✅ match backend multer field name
+        payload.append("blogImage", imageFile);
+      } else if (formData.blogImage) {
+        // ⛔ backend won't receive `blogImage` if it's a file, so we send URL if no file
+        payload.append("blogImage", formData.blogImage);
+      }
+
+      if (blog) {
+        await dispatch(
+          updateExistingBlog({ id: blog._id, formData: payload })
+        ).unwrap();
+        setToast({ type: "success", message: "Blog berhasil diupdate!" });
+      } else {
+        await dispatch(createNewBlog(payload)).unwrap();
+        setToast({ type: "success", message: "Blog berhasil ditambahkan!" });
+      }
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setToast({
+        type: "error",
+        message: blog ? "Gagal mengupdate blog." : "Gagal menambahkan blog.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -73,20 +95,21 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-500 cursor-pointer hover:text-red-500 text-lg"
+              className="text-gray-500 hover:text-red-500 text-lg cursor-pointer"
             >
               <FaRegTimesCircle />
             </button>
           </div>
 
+          {/* Judul */}
           <div>
             <label className="label">
               <span className="label-text">Judul</span>
             </label>
             <input
               type="text"
-              placeholder="Masukkan judul blog"
               className="input input-bordered w-full"
+              placeholder="Masukkan judul blog"
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
@@ -95,13 +118,14 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
             />
           </div>
 
+          {/* Konten */}
           <div>
             <label className="label">
               <span className="label-text">Konten</span>
             </label>
             <textarea
-              placeholder="Tulis konten blog di sini"
               className="textarea textarea-bordered w-full min-h-[120px]"
+              placeholder="Tulis konten blog di sini"
               value={formData.content}
               onChange={(e) =>
                 setFormData({ ...formData, content: e.target.value })
@@ -110,6 +134,7 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
             ></textarea>
           </div>
 
+          {/* Status */}
           <div>
             <label className="label">
               <span className="label-text">Status</span>
@@ -122,10 +147,42 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
               }
             >
               <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value="publish">Publish</option>
             </select>
           </div>
 
+          {/* Blog Image */}
+          <div>
+            <label className="label">
+              <span className="label-text">URL Gambar Blog (opsional)</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              placeholder="https://example.com/image.jpg"
+              value={formData.blogImage}
+              onChange={(e) =>
+                setFormData({ ...formData, blogImage: e.target.value })
+              }
+              disabled={imageFile}
+            />
+            <div className="mt-2">
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                className="file-input file-input-bordered w-full"
+                onChange={handleImageChange}
+              />
+              {imageFile && (
+                <p className="text-sm mt-1 text-green-600">
+                  File dipilih: {imageFile.name}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
           <div className="modal-action justify-between">
             <button type="button" onClick={onClose} className="btn btn-ghost">
               Batal
@@ -133,9 +190,9 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={mutation.isLoading}
+              disabled={loading}
             >
-              {mutation.isLoading ? "Menyimpan..." : blog ? "Update" : "Simpan"}
+              {loading ? "Menyimpan..." : blog ? "Update" : "Simpan"}
             </button>
           </div>
         </form>
