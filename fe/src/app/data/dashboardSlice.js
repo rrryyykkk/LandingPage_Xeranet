@@ -31,7 +31,6 @@ export const fecthDataDashboard = createAsyncThunk(
     }
   }
 );
-console.log("fecthDataDashboard:", fecthDataDashboard);
 
 const initialState = {
   blogs: [],

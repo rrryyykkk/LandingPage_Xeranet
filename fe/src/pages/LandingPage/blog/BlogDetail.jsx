@@ -1,15 +1,33 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { posts } from "../../../data/postData";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBlogs } from "../../../app/data/blogSlice";
 
 const BlogDetail = () => {
-  const { id } = useParams();
-  const post = posts.find((p) => p.id === Number(id));
-  console.log("post:", post);
+  const dispatch = useDispatch();
+  const { blogs, isLoading } = useSelector((state) => state.blog);
 
-  if (!post) {
+  const { id } = useParams();
+  useEffect(() => {
+    dispatch(fetchBlogs());
+  }, [dispatch]);
+
+  console.log("blogs", blogs);
+  console.log("id", id);
+
+  const blogDetail = blogs.find((p) => p._id === id);
+  console.log("blogDetail", blogDetail);
+  if (isLoading) {
+    return (
+      <div className="text-center text-white py-20 bg-black min-h-screen">
+        <p className="text-xl font-semibold">Memuat artikel...</p>
+      </div>
+    );
+  }
+
+  if (!BlogDetail) {
     return (
       <div className="text-center text-white py-20 bg-black min-h-screen">
         <p className="text-4xl mb-4">😕</p>
@@ -30,14 +48,14 @@ const BlogDetail = () => {
     >
       <div className="max-w-3xl mx-auto">
         <img
-          src={post.image}
-          alt={post.title}
+          src={blogDetail.blogImage}
+          alt={blogDetail.title}
           className="w-full rounded-xl mb-6 shadow-lg"
         />
-        <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
-        <p className="text-gray-400 text-sm mb-6">{post.date}</p>
+        <h1 className="text-4xl font-bold mb-2">{blogDetail.title}</h1>
+        <p className="text-gray-400 text-sm mb-6">{blogDetail.createdAt}</p>
         <p className="text-lg leading-relaxed text-gray-300 whitespace-pre-line">
-          {post.content}
+          {blogDetail.content}
         </p>
         <Link
           to="/blog"

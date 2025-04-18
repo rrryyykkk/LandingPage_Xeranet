@@ -60,7 +60,7 @@ const iklanSlice = createSlice({
         if (index !== -1) state.iklan[index] = action.payload;
       })
       .addCase(removeIklan.fulfilled, (state, action) => {
-        state.iklan = state.iklan.filter((item) => item.id !== action.payload);
+        state.iklan = state.iklan.filter((item) => item._id !== action.payload);
       });
   },
 });

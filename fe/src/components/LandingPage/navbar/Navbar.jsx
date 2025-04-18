@@ -51,7 +51,7 @@ const Navbar = () => {
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled ? "bg-black/95 shadow-md" : "bg-transparent"
       } text-white`}
     >
@@ -61,7 +61,7 @@ const Navbar = () => {
           <img
             src="/logo_F/logo.png"
             alt="Logo"
-            className={`h-10 max-w-[120px] object-contain transition-transform duration-300 ${
+            className={`h-10 max-w-[100px] object-contain transition-transform duration-300 ${
               isScrolled ? "scale-95" : "scale-100"
             }`}
           />
@@ -70,7 +70,7 @@ const Navbar = () => {
         {/* Burger Button */}
         <button
           onClick={toggleMenu}
-          className="flex flex-col justify-center items-center w-8 h-10 gap-1 z-[1001] cursor-pointer"
+          className="flex flex-col justify-center items-center w-6 h-8 gap-1 z-[1001] cursor-pointer"
           aria-label="Toggle menu"
         >
           <span
@@ -98,7 +98,7 @@ const Navbar = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4 }}
-            className="fixed top-0 right-0 h-screen w-full max-w-sm bg-[#141414f9] flex flex-col items-center justify-between px-6 pt-24 pb-6 z-[998]"
+            className="fixed top-0 right-0 h-screen w-70 max-w-sm bg-[#141414f9] flex flex-col items-center justify-between px-6 pt-24 pb-6 z-[998]"
           >
             <motion.img
               initial={{ opacity: 0 }}
@@ -106,34 +106,32 @@ const Navbar = () => {
               transition={{ delay: 0.3 }}
               src="/logo_F/logo.png"
               alt="Logo"
-              className="h-16 max-w-[200px] object-contain mb-10"
+              className="h-10 max-w-[150px] object-contain mb-5"
             />
 
-            <div className="flex flex-col gap-4 items-center w-full text-lg">
-              {["home", "services", "blog", "contact", "about"].map(
-                (page, i) => (
-                  <motion.div
-                    key={page}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * (i + 1) }}
-                    className="w-full text-center"
+            <div className="flex flex-col gap-4 items-center text-sm">
+              {["home", "blog", "contact", "about"].map((page, i) => (
+                <motion.div
+                  key={page}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * (i + 1) }}
+                  className="w-full text-center"
+                >
+                  <NavLink
+                    href={
+                      page === "services"
+                        ? "/#services"
+                        : `/${page === "home" ? "" : page}`
+                    }
+                    isActive={activePage === page}
+                    onClick={() => closeMenu(page)}
+                    mobile
                   >
-                    <NavLink
-                      href={
-                        page === "services"
-                          ? "/#services"
-                          : `/${page === "home" ? "" : page}`
-                      }
-                      isActive={activePage === page}
-                      onClick={() => closeMenu(page)}
-                      mobile
-                    >
-                      {page.charAt(0).toUpperCase() + page.slice(1)}
-                    </NavLink>
-                  </motion.div>
-                )
-              )}
+                    {page.charAt(0).toUpperCase() + page.slice(1)}
+                  </NavLink>
+                </motion.div>
+              ))}
             </div>
 
             <motion.div
@@ -146,7 +144,7 @@ const Navbar = () => {
                 href="https://www.instagram.com/xeranet.id/?igsh=MTI4MjNzZjV2ZXYycQ%3D%3D#"
                 aria-label="Instagram"
               >
-                <FaInstagramSquare className="w-12 h-12" />
+                <FaInstagramSquare className="w-8 h-8 bg-red-500 p-2 rounded-full" />
               </a>
             </motion.div>
           </motion.div>

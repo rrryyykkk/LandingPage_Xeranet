@@ -3,7 +3,11 @@ import BlogForm from "../../components/Admin/common/BlogForm";
 import Toast from "../../components/Admin/common/Toast";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteExistingBlog, fetchBlogs } from "../../app/data/blogSlice";
+import {
+  deleteExistingBlog,
+  fetchBlogs,
+  updateExistingBlog,
+} from "../../app/data/blogSlice";
 
 const Blog = () => {
   const [openForm, setOpenForm] = useState(false);
@@ -47,6 +51,27 @@ const Blog = () => {
     }
   };
 
+  const handleEditStatus = async (blog) => {
+    const newStatus =
+      selectedBlog.status === "published" ? "draft" : "published";
+    try {
+      await dispatch(
+        updateExistingBlog({
+          id: blog._id,
+          FormData: { ...blog, status: newStatus },
+        })
+      )
+        .unwrap()
+        .setToast({ type: "success", message: "Blog berhasil diupdate!" });
+    } catch (error) {
+      setToast({
+        type: "error",
+        message: "Gagal mengupdate blog",
+        error: error.message,
+      });
+    }
+  };
+
   if (isLoading) return <div className="text-center p-8">Loading...</div>;
 
   return (
@@ -76,15 +101,17 @@ const Blog = () => {
                 <td>{blog.title}</td>
                 <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <span
-                    className={`badge ${
-                      blog.status === "published"
-                        ? "badge-success"
-                        : "badge-warning"
-                    }`}
-                  >
-                    {blog.status}
-                  </span>
+                  <button onClick={handleEditStatus}>
+                    <span
+                      className={`badge ${
+                        blog.status === "published"
+                          ? "badge-success"
+                          : "badge-warning"
+                      }`}
+                    >
+                      {blog.status}
+                    </span>
+                  </button>
                 </td>
                 <td>
                   <div className="flex gap-2">

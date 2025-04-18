@@ -1,10 +1,17 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { posts } from "../../../data/postData.js";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBlogs } from "../../../app/data/blogSlice.js";
 
 const Blog = () => {
+  const { blogs, isLoading } = useSelector((state) => state.blog);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchBlogs());
+  }, [dispatch]);
   return (
     <section className="min-h-screen bg-[#0f0f0f] text-white py-16 px-6">
       <div className="max-w-6xl mx-auto">
@@ -28,38 +35,42 @@ const Blog = () => {
         </motion.p>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {posts.map((post, index) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
-              className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300"
-            >
-              <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-52 object-cover"
-              />
-              <div className="p-6 flex flex-col justify-between h-64">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">{post.date}</p>
-                  <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-                  <p className="text-gray-400 text-sm">
-                    {post.description.slice(0, 100)}...
-                  </p>
+          {blogs
+            .filter((post) => post.status === "publish")
+            .map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2 }}
+                className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300"
+              >
+                <img
+                  src={post.blogImage}
+                  alt={post.title}
+                  className="w-full h-52 object-cover"
+                />
+                <div className="p-6 flex flex-col justify-between h-64">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">
+                      {post.createdAt}
+                    </p>
+                    <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                    <p className="text-gray-400 text-sm">
+                      {post.content.slice(0, 100)}...
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    <Link
+                      to={`/blog/${post._id}`}
+                      className="text-sm text-blue-400 hover:underline"
+                    >
+                      Baca Selengkapnya →
+                    </Link>
+                  </div>
                 </div>
-                <div className="mt-4">
-                  <Link
-                    to={`/blog/${post.id}`}
-                    className="text-sm text-blue-400 hover:underline"
-                  >
-                    Baca Selengkapnya →
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
         </div>
       </div>
     </section>

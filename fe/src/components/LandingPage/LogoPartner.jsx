@@ -2,21 +2,31 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchLogoPTs } from "../../app/data/logoPTSlice";
 
-const logos = [
-  "/logoPT/amazon.png",
-  "/logoPT/google.png",
-  "/logoPT/ibm.png",
-  "/logoPT/apple.png",
-  "/logoPT/pertamina.png",
-  "/logoPT/sony.png",
-  "/logoPT/meta.png",
-  "/logoPT/mi.jpg",
-  "/logoPT/microsoft.jpg",
-  "/logoPT/philips.webp",
-];
+// const logos = [
+//   "/logoPT/amazon.png",
+//   "/logoPT/google.png",
+//   "/logoPT/ibm.png",
+//   "/logoPT/apple.png",
+//   "/logoPT/pertamina.png",
+//   "/logoPT/sony.png",
+//   "/logoPT/meta.png",
+//   "/logoPT/mi.jpg",
+//   "/logoPT/microsoft.jpg",
+//   "/logoPT/philips.webp",
+// ];
 
 const LogoPartner = () => {
+  const { logoPTs } = useSelector((state) => state.logoPTs);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchLogoPTs());
+  }, [dispatch]);
+
   return (
     <section className="py-12 bg-indigo-300">
       <h2 className="text-center text-2xl font-bold mb-6 text-black">
@@ -47,10 +57,10 @@ const LogoPartner = () => {
         }}
         className="w-full max-w-6xl mx-auto"
       >
-        {logos.map((logo, index) => (
+        {logoPTs.map((logo, index) => (
           <SwiperSlide key={index} className="flex justify-center items-center">
             <img
-              src={logo}
+              src={logo.logoPTImage}
               alt={`Logo ${index + 1}`}
               className="h-16 object-contain"
             />

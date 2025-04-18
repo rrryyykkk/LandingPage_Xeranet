@@ -15,6 +15,13 @@ const Hero = () => {
     dispatch(fetchHeroes());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const handleEdit = (hero) => {
     setSelectedHero(hero);
     setOpenForm(true);
@@ -39,9 +46,9 @@ const Hero = () => {
     <div className="p-4">
       {toast && (
         <div
-          className={`alert ${
+          className={`alert mb-4 ${
             toast.type === "success" ? "alert-success" : "alert-error"
-          } mb-4`}
+          }`}
         >
           {toast.message}
         </div>
@@ -97,7 +104,10 @@ const Hero = () => {
 
       <HeroForm
         open={openForm}
-        onClose={() => setOpenForm(false)}
+        onClose={() => {
+          setOpenForm(false);
+          setSelectedHero(null);
+        }}
         hero={selectedHero}
       />
     </div>

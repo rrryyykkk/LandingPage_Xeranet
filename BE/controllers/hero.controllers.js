@@ -94,6 +94,7 @@ export const updateHero = async (req, res) => {
     const activeFlag = parseBoolean(isActive);
     if (activeFlag) {
       await heroModels.updateMany({ isActive: true }, { isActive: false });
+      updateData.isActive = true;
     } else {
       updateData.isActive = false;
     }

@@ -1,21 +1,67 @@
 /* eslint-disable no-unused-vars */
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchHeroes } from "../../app/data/heroSlice";
 
 const Hero = () => {
+  const { heroes } = useSelector((state) => state.hero);
+  const dispatch = useDispatch();
+  const [mediaSrc, setMediaSrc] = useState("/BG.mp4");
+  const [isVideo, setIsVideo] = useState(true);
+
+  useEffect(() => {
+    dispatch(fetchHeroes());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const activeHero = heroes.find((hero) => hero.isActive === true);
+
+    if (activeHero?.heroImage) {
+      const url = activeHero.heroImage;
+      const extension = url.split(".").pop().toLowerCase();
+
+      const videoFormats = ["mp4", "webm", "ogg"];
+      const imageFormats = ["jpg", "jpeg", "png", "gif", "webp"];
+
+      if (videoFormats.includes(extension)) {
+        setMediaSrc(url);
+        setIsVideo(true);
+      } else if (imageFormats.includes(extension)) {
+        setMediaSrc(url);
+        setIsVideo(false);
+      } else {
+        setMediaSrc("/BG.mp4");
+        setIsVideo(true);
+      }
+    } else {
+      setMediaSrc("/BG.mp4");
+      setIsVideo(true);
+    }
+  }, [heroes]);
+
   return (
     <section id="hero" className="relative w-full h-screen overflow-hidden">
-      {/* Background Video */}
+      {/* Background Media */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/BG.mp4" type="video/mp4" />
-        </video>
-        </div>
+        {isVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src={mediaSrc} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src={mediaSrc}
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
 
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">

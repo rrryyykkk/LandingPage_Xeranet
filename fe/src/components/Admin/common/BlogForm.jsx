@@ -3,7 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { FaRegTimesCircle } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { createNewBlog, updateExistingBlog } from "../../../app/data/blogSlice";
+import {
+  createNewBlog,
+  fetchBlogs,
+  updateExistingBlog,
+} from "../../../app/data/blogSlice";
 
 const BlogForm = ({ open, onClose, blog, setToast }) => {
   const [formData, setFormData] = useState({
@@ -66,7 +70,7 @@ const BlogForm = ({ open, onClose, blog, setToast }) => {
         await dispatch(createNewBlog(payload)).unwrap();
         setToast({ type: "success", message: "Blog berhasil ditambahkan!" });
       }
-
+      dispatch(fetchBlogs());
       onClose();
     } catch (err) {
       console.error(err);

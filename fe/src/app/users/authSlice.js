@@ -18,7 +18,6 @@ export const login = createAsyncThunk(
 export const getMe = createAsyncThunk("/auth/me", async (_, thunkAPI) => {
   try {
     const user = await fetchUser();
-    console.log("user:", user);
     return user;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message);
