@@ -10,6 +10,9 @@ const Hero = () => {
   const [mediaSrc, setMediaSrc] = useState("/BG.mp4");
   const [isVideo, setIsVideo] = useState(true);
 
+  // Mengambil nomor WhatsApp dari environment variable
+  const waNumber = import.meta.env.VITE_WaNumber;
+
   useEffect(() => {
     dispatch(fetchHeroes());
   }, [dispatch]);
@@ -103,7 +106,13 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 cursor-pointer"
           >
-            Get Free Consultation
+            <a
+              href={`https://wa.me/${waNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get Free Consultation
+            </a>
           </motion.button>
           <motion.button
             initial={{ opacity: 0, y: 20 }}
@@ -111,7 +120,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="border border-white text-white font-semibold py-3 px-6 rounded-lg cursor-pointer hover:bg-white hover:text-black transition duration-300"
           >
-            Our Services
+            <a href="/service">Our Services</a>
           </motion.button>
         </div>
       </div>

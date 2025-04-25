@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-vars */
 import { useDispatch, useSelector } from "react-redux";
-import Loading from "../../components/Admin/common/loading";
-import Error from "../../components/Admin/common/error";
 import { useEffect } from "react";
 import { fecthDataDashboard } from "../../app/data/dashboardSlice";
 import { motion } from "framer-motion";
@@ -26,10 +24,7 @@ const Dashboard = () => {
   useEffect(() => {
     dispatch(fecthDataDashboard());
   }, [dispatch]);
-
-  if (isLoading) {
-    return <Loading message="Memuat data dashboard..." />;
-  }
+  if (isLoading) return <div className="text-center p-8">Loading...</div>;
 
   if (error) {
     return (

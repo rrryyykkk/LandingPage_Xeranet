@@ -13,7 +13,10 @@ const Blog = () => {
     dispatch(fetchBlogs());
   }, [dispatch]);
   return (
-    <section className="min-h-screen bg-[#0f0f0f] text-white py-16 px-6">
+    <section
+      className="min-h-screen bg-[#0f0f0f] text-white py-16 px-6 "
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
       <div className="max-w-6xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}

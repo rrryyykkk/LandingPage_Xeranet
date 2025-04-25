@@ -15,7 +15,7 @@ export default function Footer() {
       initial={{ opacity: 0, y: -40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.3 }}
-      className="bg-black text-white py-10"
+      className="bg-neutral-950 text-gray-200 py-10"
     >
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo dan Sosial Media */}

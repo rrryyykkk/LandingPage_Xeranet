@@ -4,11 +4,12 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/",
   server: {
     port: 5314,
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://localhost:5002",
         changeOrigin: true,
       },
     },

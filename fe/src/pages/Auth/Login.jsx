@@ -129,16 +129,6 @@ const LoginPage = () => {
             {loading ? "Loading..." : "Login"}
           </button>
         </form>
-
-        <div className="divider text-sm text-base-content/60">atau</div>
-
-        <button
-          onClick={loginWithGoogle}
-          className="btn btn-outline w-full flex items-center justify-center gap-2"
-        >
-          <FcGoogle className="text-xl" />
-          Login dengan Google
-        </button>
       </motion.div>
 
       {toast && (

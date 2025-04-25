@@ -28,8 +28,8 @@ const LogoPartner = () => {
   }, [dispatch]);
 
   return (
-    <section className="py-12 bg-indigo-300">
-      <h2 className="text-center text-2xl font-bold mb-6 text-black">
+    <section className="py-12 bg-neutral-950">
+      <h2 className="text-center text-2xl font-bold mb-6 text-white">
         Didukung Oleh
       </h2>
       <Swiper
@@ -58,7 +58,10 @@ const LogoPartner = () => {
         className="w-full max-w-6xl mx-auto"
       >
         {logoPTs.map((logo, index) => (
-          <SwiperSlide key={index} className="flex justify-center items-center">
+          <SwiperSlide
+            key={index}
+            className="flex justify-center items-center bg-transparent"
+          >
             <img
               src={logo.logoPTImage}
               alt={`Logo ${index + 1}`}

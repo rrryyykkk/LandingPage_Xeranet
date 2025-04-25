@@ -45,6 +45,7 @@ const BlogDetail = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       className="bg-[#0f0f0f] text-white min-h-screen px-6 py-16"
+      style={{ fontFamily: "Roboto" }}
     >
       <div className="max-w-3xl mx-auto">
         <img

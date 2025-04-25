@@ -25,6 +25,8 @@ import ProfilePage from "./pages/Admin/Profile";
 import ProtectedRoutes from "./middleware/ProtectedRoutes";
 import NotificationsPage from "./pages/Admin/Notification";
 import Iklan from "./pages/Admin/Iklan";
+import Hero2 from "./components/LandingPage/Hero2";
+import ServicePage from "./pages/LandingPage/service/ServicePage";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -51,6 +53,7 @@ function App() {
             <>
               <LandingPageLayout>
                 <Hero />
+                <Hero2 />
                 <Service />
                 <Testimoni />
                 <LogoPartner />
@@ -65,6 +68,14 @@ function App() {
           element={
             <LandingPageLayout>
               <About />
+            </LandingPageLayout>
+          }
+        />
+        <Route
+          path="/service"
+          element={
+            <LandingPageLayout>
+              <ServicePage />
             </LandingPageLayout>
           }
         />

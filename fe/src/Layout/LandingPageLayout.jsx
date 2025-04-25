@@ -1,3 +1,4 @@
+import PopUpWa from "../components/LandingPage/common/PopUpWa";
 import Footer from "../components/LandingPage/Footer";
 import Navbar from "../components/LandingPage/navbar/Navbar";
 
@@ -6,6 +7,7 @@ const LandingPageLayout = ({ children }) => {
     <>
       <Navbar />
       {children}
+      <PopUpWa />
       <Footer />
     </>
   );
