@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     _id: { type: String },
+    firebaseId: {
+      type: String,
+      unique: true, // memastikan firebaseId unik
+      sparse: true, // akan diabaikan jika null (untuk mengatasi user pertama kali)},
+    },
     userName: {
       type: String,
       required: true,
@@ -32,7 +37,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["admin", "user"],
-      default: "user",  
+      default: "user",
     },
     otpCode: {
       type: String,

@@ -2,16 +2,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import { useDispatch, useSelector } from "react-redux";
 import { getMe, login } from "../../app/users/authSlice";
 import { useNavigate } from "react-router-dom";
 import Toast from "../../components/Admin/common/Toast";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
 const LoginPage = () => {
@@ -36,28 +31,9 @@ const LoginPage = () => {
 
       setTimeout(() => {
         navigate("/admin");
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.log("Login Error:", error);
-      setToast({ type: "error", message: error.message });
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
-
-      // Optional: bisa dikirim ke backend kalau perlu
-      dispatch(getMe());
-      setToast({ type: "success", message: "Login Google berhasil" });
-
-      setTimeout(() => {
-        navigate("/admin");
-      }, 1000);
-    } catch (error) {
-      console.error("Google Login Error:", error);
       setToast({ type: "error", message: error.message });
     }
   };

@@ -1,7 +1,8 @@
 import User from "../models/user.models.js";
 import bcrypt from "bcrypt";
-import { getIdToken } from "../service/id.token.js";
 import admin from "../config/firebase.js";
+import { expiredOTP, generateOTP } from "../service/generateOTP.js";
+import transporter from "../config/mailer.js";
 
 export const register = async (req, res) => {
   try {
@@ -60,6 +61,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { idToken } = req.body;
+
     if (!idToken) {
       return res.status(400).json({ message: "ID token is required" });
     }
@@ -70,16 +72,74 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid ID token" });
     }
 
-    // Cek user di MongoDB
     let user = await User.findById(decoded.uid);
-    if (!user) {
-      // Auto-create kalau belum ada (opsional)
-      user = await User.create({
-        _id: decoded.uid,
-        email: decoded.email,
-        name: decoded.name || "",
-        role: "admin", // default role atau sesuai kebutuhan
+    if (!user.firebaseId) {
+      try {
+        // Coba cari user di Firebase
+        const firebaseUserCheck = await admin.auth().getUser(user._id);
+
+        if (firebaseUserCheck) {
+          // Jika ada → update firebaseId di Mongo
+          user.firebaseId = firebaseUserCheck.uid;
+          await user.save();
+          console.log("✅ Firebase user already exists, firebaseId updated.");
+        }
+      } catch (err) {
+        if (err.code === "auth/user-not-found") {
+          // Kalau user tidak ada di Firebase → buat user baru
+          try {
+            const firebaseUser = await admin.auth().createUser({
+              uid: user._id, // set uid biar sama dengan Mongo _id
+              email: user.email,
+              password: "default123", // default, HARUS ganti saat signup sesungguhnya
+              displayName: user.fullName,
+              photoURL: user.imgProfile || undefined,
+            });
+
+            user.firebaseId = firebaseUser.uid;
+            await user.save();
+            console.log("✅ Firebase user created:", firebaseUser.uid);
+          } catch (createErr) {
+            console.error("❌ Error creating Firebase user:", createErr);
+            return res
+              .status(500)
+              .json({
+                message: "Failed to create user in Firebase",
+                error: createErr.message,
+              });
+          }
+        } else {
+          console.error("❌ Error checking Firebase user:", err);
+          return res
+            .status(500)
+            .json({
+              message: "Error checking Firebase user",
+              error: err.message,
+            });
+        }
+      }
+    }
+
+    // cek apakah 2FA sudah diaktifkan
+    if (user.is2faEnabled) {
+      const otp = generateOTP();
+      const expire = new Date(expiredOTP());
+
+      user.otp = otp;
+      user.otpExpire = expire;
+      await user.save();
+
+      // Kirim OTP melalui email
+      await transporter.sendMail({
+        from: process.env.EMAIL,
+        to: user.email,
+        subject: "Your 2FA OTP Code",
+        text: `Your 2FA OTP code is ${otp}. This code will expire in 5 minutes.`,
       });
+
+      return res
+        .status(200)
+        .json({ message: "OTP sent to your email", require2fa: true });
     }
 
     // Set session cookie
@@ -125,5 +185,86 @@ export const logout = async (req, res) => {
     return res
       .status(500)
       .json({ message: `failed to logout: ${error.message}` });
+  }
+};
+
+export const verify2FA = async (req, res) => {
+  try {
+    const { uid, otp } = req.body;
+    const user = await User.findById(uid);
+
+    if (!user || !user.otpCode !== otp)
+      return res.status(400).json({ message: "Invalid OTP" });
+    if (user.otpExpire < new Date())
+      return res.status(400).json({ message: "OTP expired" });
+
+    user.otpCode = null;
+    user.otpExpire = null;
+    await user.save();
+
+    res.cookie("authToken", await admin.auth().createCustomToken(uid), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+
+    res.status(200).json({ message: "2FA verified, login success", user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = generateOTP();
+    const expire = new Date(expiredOTP());
+    await user.save();
+
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: "Reset Password",
+      text: `Your reset password OTP is ${otp}. This OTP will expire in 5 minutes.`,
+    });
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    const user = await User.findById(uid);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!user || user.otpCode !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (user.otpExpire < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.otpCode = null;
+    user.otpExpire = null;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset success" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

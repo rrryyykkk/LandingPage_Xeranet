@@ -1,35 +1,66 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
 import EditProfileForm from "../../components/Admin/common/EditProfileForm";
+import { getMe } from "../../app/users/authSlice";
 
 const ProfilePage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Data user sementara (dummy)
-  const user = {
-    fullName: "John Doe",
-    username: "johndoe",
-    email: "oYt2q@example.com",
-    imgProfile: "/avatar.png",
-  };
+  // Ambil user dan loading dari Redux store
+  const { user: reduxUser, loading: authLoading } = useSelector(
+    (state) => state.auth
+  );
 
-  // Redirect ke login jika user tidak ada
+  // Ambil user dari state <Link />, kalau ada
+  const userFromState = location.state?.user;
+
+  // Prioritaskan user dari state, kalau nggak ada pakai dari Redux
+  const user = userFromState || reduxUser;
+
   useEffect(() => {
-    if (!user) {
+    if (!reduxUser) {
+      dispatch(getMe());
+    }
+  }, [dispatch, reduxUser]);
+
+  // Redirect ke login kalau sudah selesai loading, dan user tetap null
+  useEffect(() => {
+    if (!authLoading && !userFromState && !reduxUser) {
       navigate("/admin/login");
     }
-  }, [user, navigate]);
+  }, [userFromState, reduxUser, authLoading, navigate]);
 
   const handleEdit = () => {
-    setSelectedProfile(user); // Set profile yang ingin diedit
-    setIsOpen(true); // Buka form edit
+    setSelectedProfile(user);
+    setIsOpen(true);
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-600">
+          User tidak ditemukan.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -47,16 +78,23 @@ const ProfilePage = () => {
           <div className="avatar">
             <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
               <img
-                src={user.imgProfile || "/default-avatar.png"}
+                src={user?.imgProfile || "/default-avatar.png"}
                 alt="Foto Profil"
+                className="object-cover w-full h-full"
               />
             </div>
           </div>
 
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-semibold">{user.fullName}</h2>
-            <p className="text-sm text-gray-500">@{user.username}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <h2 className="text-2xl font-semibold">
+              {user?.fullName || "Admin"}
+            </h2>
+            <p className="text-sm text-gray-500">
+              @{user?.userName || "username"}
+            </p>
+            <p className="text-sm text-gray-500">
+              {user?.email || "email@example.com"}
+            </p>
           </div>
         </div>
 
@@ -67,8 +105,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Tampilkan form jika isOpen true */}
-      {isOpen && (
+      {isOpen && user && (
         <EditProfileForm
           open={isOpen}
           onClose={() => setIsOpen(false)}

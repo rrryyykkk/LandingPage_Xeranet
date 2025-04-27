@@ -27,6 +27,9 @@ import NotificationsPage from "./pages/Admin/Notification";
 import Iklan from "./pages/Admin/Iklan";
 import Hero2 from "./components/LandingPage/Hero2";
 import ServicePage from "./pages/LandingPage/service/ServicePage";
+import Verify2FA from "./pages/Admin/Verify2FA";
+import ForgotPassword from "./pages/Admin/ForgotPassword";
+import ResetPassword from "./pages/Admin/ResetPassword";
 
 function ScrollToTop() {
   const location = useLocation();
@@ -189,6 +192,9 @@ function App() {
         </Route>
         {/* Admin-end */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/verify-2fa" element={<Verify2FA />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </>
   );

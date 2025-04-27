@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlogs } from "../../../app/data/blogSlice";
@@ -8,17 +8,19 @@ import { fetchBlogs } from "../../../app/data/blogSlice";
 const BlogDetail = () => {
   const dispatch = useDispatch();
   const { blogs, isLoading } = useSelector((state) => state.blog);
-
   const { id } = useParams();
+
+  // Dapatkan state dari location
+  const location = useLocation();
+  const blogDetailFromState = location.state?.blog; // Mendapatkan blog yang dikirim dari Blog
+
   useEffect(() => {
     dispatch(fetchBlogs());
   }, [dispatch]);
 
-  console.log("blogs", blogs);
-  console.log("id", id);
+  // Jika blog tidak ada di state, cari di blogs array
+  const blogDetail = blogDetailFromState || blogs.find((p) => p._id === id);
 
-  const blogDetail = blogs.find((p) => p._id === id);
-  console.log("blogDetail", blogDetail);
   if (isLoading) {
     return (
       <div className="text-center text-white py-20 bg-black min-h-screen">
@@ -27,7 +29,7 @@ const BlogDetail = () => {
     );
   }
 
-  if (!BlogDetail) {
+  if (!blogDetail) {
     return (
       <div className="text-center text-white py-20 bg-black min-h-screen">
         <p className="text-4xl mb-4">😕</p>

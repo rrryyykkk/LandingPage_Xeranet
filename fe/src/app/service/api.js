@@ -22,12 +22,48 @@ export const loginUser = async (email, password) => {
 
 export const fetchUser = async () => {
   const response = await axiosInstance.get(`${API_URI}/auth/me`);
+  console.log("fetchUser:", response.data);
   return response.data.user;
 };
 
 export const logoutUser = async () => {
   const response = await axiosInstance.post(`${API_URI}/auth/logout`);
   return response.data.user;
+};
+
+export const FAVerify = async (code) => {
+  const response = await axiosInstance.post(`${API_URI}/auth/verify-2fa`, {
+    code,
+  });
+  return response.data.user;
+};
+
+export const ForgotPassword = async (email) => {
+  const response = await axiosInstance.post(`${API_URI}/auth/forgot-password`, {
+    email,
+  });
+  return response.data;
+};
+
+export const ResetPassword = async (token, password) => {
+  const response = await axiosInstance.post(`${API_URI}/auth/reset-password`, {
+    token,
+    password,
+  });
+  return response.data;
+};
+
+export const EditProfile = async (formData) => {
+  const response = await axiosInstance.put(
+    `${API_URI}/user/profile`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
 };
 
 // data-all

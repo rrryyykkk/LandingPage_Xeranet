@@ -67,6 +67,7 @@ const Blog = () => {
                     <Link
                       to={`/blog/${post._id}`}
                       className="text-sm text-blue-400 hover:underline"
+                      state={{ blog: post }}
                     >
                       Baca Selengkapnya →
                     </Link>

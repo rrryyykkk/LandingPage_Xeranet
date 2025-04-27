@@ -1,0 +1,36 @@
+version: "3"
+services:
+  db:
+    image: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./BE
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./BE/.env
+    volumes:
+      - ./BE:/app
+    depends_on:
+      - db
+
+  frontend:
+    build: ./fe
+    depends_on:
+      - backend
+    ports:
+      - "80:80" # Karena Nginx di frontend expose port 80
+    networks:
+      - backend_network
+
+volumes:
+  mongo-data:
+
+networks:
+  backend_network:
+    driver: bridge

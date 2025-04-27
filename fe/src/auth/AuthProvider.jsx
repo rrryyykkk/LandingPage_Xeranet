@@ -1,16 +1,17 @@
-/* eslint-disable react-refresh/only-export-components */
-import { onAuthStateChanged } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../firebase";
 import { useDispatch } from "react-redux";
-import { getMe } from "../app/users/authSlice";
+import { auth } from "../firebase"; // Pastikan import firebase sudah benar
+import { getMe } from "../app/users/authSlice"; // Sesuaikan dengan action redux kamu
 
+// Membuat Context untuk Auth
 const AuthContext = createContext();
 
+// Hook untuk mengakses AuthContext
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
+// AuthProvider untuk mengelola status login
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [idToken, setIdToken] = useState(null);
@@ -18,31 +19,43 @@ export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log("firebaseUser:", firebaseUser);
+    // Mendengarkan perubahan status login
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
+        // Jika pengguna sudah login
+        console.log("User is logged in:", firebaseUser);
+
+        // Ambil ID token pengguna
         const token = await firebaseUser.getIdToken();
+        console.log("Firebase ID Token:", token);
+
+        // Simpan informasi user
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         });
-        console.log("token:", token);
-        console.log("firebaseUser:", firebaseUser);
-        setIdToken(token);
-        dispatch(getMe());
+        setIdToken(token); // Simpan token
+        dispatch(getMe()); // Ambil data pengguna dari API jika diperlukan
       } else {
+        // Jika pengguna belum login
+        console.log("No user is logged in");
         setUser(null);
         setIdToken(null);
       }
-      setLoading(false);
+      setLoading(false); // Set loading ke false setelah proses selesai
     });
+
+    // Bersihkan listener saat komponen unmount
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]);
+
   return (
     <AuthContext.Provider value={{ user, loading, idToken }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

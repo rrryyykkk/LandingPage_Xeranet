@@ -12,8 +12,6 @@ export const updateProfile = [
   upload.single("image"),
   async (req, res) => {
     try {
-      console.time("Total Update");
-
       const userId = req.user._id;
       const {
         userName,
@@ -25,9 +23,9 @@ export const updateProfile = [
       } = req.body;
 
       let uploadedImage;
+      const firebaseUpdate = {};
 
-      // 📷 Upload image file jika ada
-      console.time("Image Upload");
+      // Upload image dari file
       if (req.file) {
         uploadedImage = await uploadToCloudinary(
           req.file.buffer,
@@ -36,119 +34,99 @@ export const updateProfile = [
         );
       }
 
-      // 🌐 URL image valid (Cloudinary, Unsplash, dll)
+      // Upload dari URL
       if (!req.file && imgProfile && isValidImageUrl(imgProfile)) {
         uploadedImage = await downloadAndUpload(imgProfile, "profile");
       }
-      console.timeEnd("Image Upload");
 
-      // 🔍 Cek user
-      console.time("Find User");
       const user = await User.findById(userId);
-      console.timeEnd("Find User");
-      if (!user) {
+      if (!user)
         return res.status(404).json({ message: "User tidak ditemukan" });
-      }
 
-      // 🧠 Validasi userName unik (jika diubah)
+      // Validasi perubahan data
       if (userName && userName !== user.userName) {
-        console.time("Check Username");
         const existingUser = await User.findOne({ userName });
-        console.timeEnd("Check Username");
-        if (existingUser) {
+        if (existingUser)
           return res.status(400).json({ message: "Username sudah digunakan" });
-        }
-        user.userName = userName;
+        firebaseUpdate.displayName = fullName || user.fullName; // Optional
       }
 
-      // 🧠 Validasi email unik (jika diubah)
       if (email && email !== user.email) {
-        console.time("Check Email");
         const existingEmail = await User.findOne({ email });
-        console.timeEnd("Check Email");
-        if (existingEmail) {
+        if (existingEmail)
           return res.status(400).json({ message: "Email sudah digunakan" });
-        }
-        user.email = email;
+        firebaseUpdate.email = email;
       }
 
-      // ✍️ Update nama lengkap
-      if (fullName) user.fullName = fullName;
+      if (fullName && fullName !== user.fullName) {
+        firebaseUpdate.displayName = fullName;
+      }
 
-      // 🖼️ Update image profile jika upload
       if (uploadedImage) {
-        user.imgProfile = uploadedImage.url;
+        firebaseUpdate.photoURL = uploadedImage.url;
       }
 
-      // ❌ Jika imgProfile === "remove", hapus foto profil
       if (imgProfile === "remove") {
-        user.imgProfile = "";
+        firebaseUpdate.photoURL = "";
       }
 
-      // 🔒 Jika ingin ganti password
       if (oldPassword && newPassword) {
-        console.time("Compare Password");
         const isMatch = await bcrypt.compare(oldPassword, user.password);
-        console.timeEnd("Compare Password");
-
-        if (!isMatch) {
+        if (!isMatch)
           return res.status(400).json({ message: "Password lama salah" });
-        }
+        firebaseUpdate.password = newPassword; // plain text
+      }
 
-        console.time("Hash Password");
+      // Kalau tidak ada perubahan apa pun
+      const noChange =
+        !userName &&
+        !email &&
+        !fullName &&
+        !uploadedImage &&
+        imgProfile !== "remove" &&
+        !(oldPassword && newPassword);
+
+      if (noChange) {
+        return res.status(200).json({ message: "Tidak ada perubahan" });
+      }
+
+      // Firebase update dulu
+      if (user.firebaseId && Object.keys(firebaseUpdate).length > 0) {
+        console.log("🔄 Updating Firebase for:", user.firebaseId);
+        console.log("With:", firebaseUpdate);
+        try {
+          await admin.auth().updateUser(user.firebaseId, firebaseUpdate);
+          console.log("✅ Firebase updated");
+        } catch (error) {
+          console.error(
+            "❌ Firebase update failed:",
+            error.code,
+            error.message
+          );
+          return res.status(500).json({
+            message: "Gagal update data di Firebase",
+            error: error.message,
+          });
+        }
+      }
+      console.log("👉 firebaseId:", user.firebaseId);
+      console.log("👉 firebaseUpdate object:", firebaseUpdate);
+
+      // Setelah Firebase berhasil, baru update MongoDB
+      if (userName) user.userName = userName;
+      if (email) user.email = email;
+      if (fullName) user.fullName = fullName;
+      if (uploadedImage) user.imgProfile = uploadedImage.url;
+      if (imgProfile === "remove") user.imgProfile = "";
+      if (oldPassword && newPassword) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
-        console.timeEnd("Hash Password");
       }
 
-      // ❗ Cek apakah ada perubahan
-      const isChanged =
-        user.isModified("userName") ||
-        user.isModified("email") ||
-        user.isModified("fullName") ||
-        user.isModified("password") ||
-        user.isModified("imgProfile");
-
-      if (!isChanged) {
-        console.timeEnd("Total Update");
-        return res
-          .status(200)
-          .json({ message: "Tidak ada perubahan pada profil" });
-      }
-
-      // 💾 Simpan perubahan
-      console.time("Save User");
       const updatedUser = await user.save();
-      console.timeEnd("Save User");
+      console.log("✅ MongoDB updated:", updatedUser);
 
-      // simpan ke firebase
-      console.time("Update Firebase");
-      if (user.firebaseId) {
-        const updatedUserFirebase = {};
-
-        if (email && email !== user.email) {
-          updatedUserFirebase.email = email;
-        }
-
-        if (oldPassword && newPassword) {
-          updatedUserFirebase.password = newPassword;
-        }
-        if (fullName) {
-          updatedUserFirebase.displayName = fullName;
-        }
-
-        if (imgProfile) {
-          updatedUserFirebase.photoURL = imgProfile;
-        }
-
-        if (Object.keys(updatedUserFirebase).length > 0) {
-          await admin.auth().updateUser(user.firebaseId, updatedUserFirebase);
-        }
-      }
-      console.timeEnd("Update Firebase");
-
-      console.timeEnd("Total Update");
-      res.status(200).json({
+      return res.status(200).json({
         message: "Profil berhasil diperbarui",
         user: {
           _id: updatedUser._id,
@@ -160,8 +138,11 @@ export const updateProfile = [
         },
       });
     } catch (error) {
-      console.error("Gagal update profil:", error);
-      res.status(500).json({ message: "Terjadi kesalahan saat update profil" });
+      console.error("❌ Gagal update profil:", error);
+      return res.status(500).json({
+        message: "Terjadi kesalahan saat update profil",
+        error: error.message,
+      });
     }
   },
 ];

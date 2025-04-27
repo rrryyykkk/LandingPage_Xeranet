@@ -56,7 +56,9 @@ const PopUpWa = () => {
             <div className="modal-action">
               {/* Tombol untuk mengarahkan ke WhatsApp */}
               <a
-                href={`https://wa.me/${waNumber}`}
+                href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+                  "Halo, saya tertarik untuk membeli layanan digital/web Anda. Bisa bantu saya dengan informasi lebih lanjut tentang produk yang tersedia?"
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-success"

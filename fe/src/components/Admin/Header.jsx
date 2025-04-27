@@ -171,6 +171,7 @@ const Header = ({ onSidebarToggle }) => {
                       <Link
                         to="/admin/profile"
                         className="block px-4 py-2 hover:bg-base-200"
+                        state={{ user }}
                       >
                         Profile
                       </Link>
