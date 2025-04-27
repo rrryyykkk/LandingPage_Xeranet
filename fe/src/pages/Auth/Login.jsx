@@ -30,7 +30,7 @@ const LoginPage = () => {
       setToast({ type: "success", message: "Login berhasil" });
 
       setTimeout(() => {
-        navigate("/admin");
+        navigate("/verify-2fa"); // Arahkan ke halaman verifikasi OTP
       }, 500);
     } catch (error) {
       console.log("Login Error:", error);

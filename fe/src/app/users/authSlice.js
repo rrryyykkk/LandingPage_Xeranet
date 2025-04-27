@@ -23,6 +23,17 @@ export const login = createAsyncThunk(
   }
 );
 
+// 🔥 getMe() sekarang minta token juga
+export const getMe = createAsyncThunk("/auth/me", async (token, thunkAPI) => {
+  try {
+    const user = await fetchUser(token);
+    console.log("getMe:", user);
+    return user;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
 export const twoFAVerify = createAsyncThunk(
   "/auth/verify-2fa",
   async (code, thunkAPI) => {
@@ -68,15 +79,6 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
-export const getMe = createAsyncThunk("/auth/me", async (_, thunkAPI) => {
-  try {
-    const user = await fetchUser();
-    return user;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.message);
-  }
-});
-
 export const logout = createAsyncThunk("/auth/logout", async (_, thunkAPI) => {
   try {
     const user = await logoutUser();
@@ -95,104 +97,98 @@ const authSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
-    // login
-    builder.addCase(login.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(login.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(login.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // 2fa
-    builder.addCase(twoFAVerify.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(twoFAVerify.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(twoFAVerify.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // forgot password
-    builder.addCase(forgotPassword.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(forgotPassword.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(forgotPassword.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // reset password
-    builder.addCase(resetPassword.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(resetPassword.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(resetPassword.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // edit profile
-    builder.addCase(updateProfile.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(updateProfile.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(updateProfile.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // getMe
-    builder.addCase(getMe.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(getMe.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-      state.error = null;
-    });
-    builder.addCase(getMe.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
-    // logout
-    builder.addCase(logout.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(logout.fulfilled, (state) => {
-      state.loading = false;
-      state.user = null;
-      state.error = null;
-    });
-    builder.addCase(logout.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    });
+    builder
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getMe.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(getMe.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(twoFAVerify.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(twoFAVerify.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(twoFAVerify.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(logout.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

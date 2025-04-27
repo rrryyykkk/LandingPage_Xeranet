@@ -12,7 +12,12 @@ export const loginUser = async (email, password) => {
     password
   );
   const idToken = await userCredentials.user.getIdToken();
+  console.log("Token yang dikirim:", idToken);
 
+  // Simpan token di localStorage
+  localStorage.setItem("authToken", idToken);
+
+  // Kirim token ke backend
   const response = await axiosInstance.post(`${API_URI}/auth/login`, {
     idToken,
   });

@@ -1,61 +1,88 @@
-import { useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { auth } from "../../firebase";
 import axios from "axios";
+import Toast from "../../components/Admin/common/Toast";
 
 const Verify2FA = () => {
-  const [uid, setUid] = useState(""); // isi dari Firebase Auth user UID
   const [otp, setOtp] = useState("");
+  const [uid, setUid] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [toast, setToast] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Ambil UID dari user yang sudah login Firebase
+    const user = auth.currentUser;
+    if (user) {
+      setUid(user.uid);
+    }
+  }, []);
 
   const handleVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await axios.post("/api/auth/verify-2fa", { uid, otp });
-      setMessage(res.data.message);
-      // bisa redirect ke dashboard
+      setToast({ type: "success", message: res.data.message });
+
+      setTimeout(() => {
+        navigate("/admin"); // Redirect ke halaman dashboard setelah sukses verifikasi
+      }, 1000);
     } catch (error) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      setToast({
+        type: "error",
+        message: error.response?.data?.message || "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <form
-        onSubmit={handleVerify}
-        className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
+    <div className="min-h-screen flex items-center justify-center bg-base-200 transition-colors duration-300">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-8 border border-base-300"
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">Verify 2FA</h2>
+        <h2 className="text-3xl font-bold text-center text-primary mb-4">
+          Verifikasi OTP
+        </h2>
+        <p className="text-center text-base-content/70 mb-6">
+          Masukkan kode OTP yang dikirimkan ke email Anda
+        </p>
 
-        <input
-          type="text"
-          placeholder="User UID"
-          value={uid}
-          onChange={(e) => setUid(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-          required
+        <form className="space-y-4" onSubmit={handleVerify}>
+          <input
+            type="text"
+            placeholder="Kode OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="input input-bordered w-full"
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full mt-4"
+          >
+            {loading ? "Memverifikasi..." : "Verifikasi OTP"}
+          </button>
+        </form>
+      </motion.div>
+
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
         />
-        <input
-          type="text"
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-          required
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          {loading ? "Verifying..." : "Verify OTP"}
-        </button>
-
-        {message && <p className="text-center mt-4 text-red-500">{message}</p>}
-      </form>
+      )}
     </div>
   );
 };

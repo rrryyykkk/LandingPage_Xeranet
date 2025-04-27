@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
 import { FaTools, FaShieldAlt, FaClock, FaChevronDown } from "react-icons/fa";
 import { motion } from "framer-motion";
 import web from "/1.png";
@@ -78,9 +77,10 @@ const services = [
         price: "Rp 10.000.000 – 15.000.000",
         features: [
           "Pengujian untuk 1 website + 1 server internal",
-          "Penetration testing: port scanning, brute force",
-          "Deteksi misconfiguration & vulnerabilities",
-          "Laporan dan saran keamanan",
+          "Penetration testing untuk website dan server (port scanning, service detection)",
+          "Cakupan: SQL Injection, Cross-site Scripting (XSS), CSRF, brute force attacks, open ports",
+          "Pengujian terhadap misconfigurations dan vulnerabilities di sistem web dan jaringan",
+          "Laporan dengan rekomendasi keamanan dan patching",
           "Durasi 2 minggu",
           "Dukungan tindak lanjut 1 bulan",
         ],
@@ -89,9 +89,12 @@ const services = [
         name: "🔶 Paket Pro – Enterprise Penetration Testing",
         price: "Rp 20.000.000 – 50.000.000+",
         features: [
-          "Pengujian web + jaringan + aplikasi mobile",
-          "Cakupan luas: Wi-Fi, API, IoT, mobile, phishing simulation",
+          "Pengujian menyeluruh pada web + jaringan internal + aplikasi mobile",
+          "Cakupan luas: web application testing, network penetration testing, Wi-Fi testing, mobile app security, social engineering",
           "Simulasi serangan lanjutan: MITM, phishing",
+          "Tes pada multiple servers, firewalls, dan API",
+          "Pengujian terhadap keamanan aplikasi web, server, API, perangkat IoT, dan perangkat mobile",
+          "Diskusi hasil pengujian dengan tim teknis klien (onsite atau remote)",
           "Laporan lengkap & prioritas risiko",
           "Durasi 4–6 minggu",
           "Diskusi hasil + dukungan 3 bulan",
@@ -110,15 +113,6 @@ const services = [
 ];
 
 const ServicePage = () => {
-  // const [openPackages, setOpenPackages] = useState({});
-
-  // const togglePackage = (key) => {
-  //   setOpenPackages((prev) => ({
-  //     ...prev,
-  //     [key]: !prev[key],
-  //   }));
-  // };
-
   return (
     <section
       id="services"
